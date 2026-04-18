@@ -1572,10 +1572,12 @@ body {
   <span style="font-size:1.6rem;">💬</span>
   <textarea id="chat_input" placeholder="Share your update" style="flex: 1; border: none; background: transparent; color: var(--text-main); font-family: inherit; font-size: 1rem; resize: none; min-height: 24px; padding: 8px 0; outline:none; font-weight: 500; overflow-y: auto; word-wrap: break-word;"></textarea>
   <button id="sendChatBtn" class="login-btn" style="padding: 10px 24px;">Post</button>
+  <button id="toggleChatBtn" class="btn-small" style="margin-left: 8px; white-space: nowrap;" onclick="toggleChatVisibility()">💬 Show Messages</button>
 </div>
+
 <div id="chat_feedback" style="text-align:center; font-size:0.85rem; font-weight:700; color: var(--color-pending); min-height:20px;"></div>
 
-<div class="chat-container fade-up" id="chatContainer">
+<div class="chat-container fade-up" id="chatContainer" style="display: none;">
   <div style="padding: 15px 25px; background: var(--panel-bg); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
     <h3 style="margin:0; font-size: 1.2rem;">Community Logs</h3>
 
@@ -3413,49 +3415,66 @@ updateStopwatchDisplay();
                   };
 
 
-// ========== CHAT HIDE / EXPAND FUNCTIONS ==========
-window.hideChatContainer = function() {
+// ========== CHAT TOGGLE & VISIBILITY FUNCTIONS ==========
+window.toggleChatVisibility = function() {
   var chat = document.getElementById('chatContainer');
-  var loadBtn = document.getElementById('showAllMessagesBtn');
-  var hideBtn = document.getElementById('hideChatBtn');
-  var expandBtn = document.getElementById('expandChatBtn');
-  if (chat) chat.style.display = 'none';
-  if (loadBtn) loadBtn.style.display = 'inline-flex';
-  if (hideBtn) hideBtn.style.display = 'none';
-  if (expandBtn) expandBtn.style.display = 'none';
+  var toggleBtn = document.getElementById('toggleChatBtn');
+  if (!chat || !toggleBtn) return;
+  
+  if (chat.style.display === 'none') {
+    // চ্যাট দেখানোর আগে যদি আগে থেকে মেসেজ লোড করা না থাকে, তাহলে লোড করবে?
+    // আমরা চাই ইউজার আগে Load Chat-এ ক্লিক করুক, তাই এখানে শুধু UI দেখাবো।
+    // কিন্তু যদি চ্যাট ফাঁকা থাকে তাহলে অটো লোড ট্রিগার করা যেতে পারে।
+    var feed = document.getElementById('chatFeed');
+    if (feed && feed.children.length === 1 && feed.children[0].innerText.includes('Login')) {
+      // যদি এখনো লোড না করা হয়, তাহলে Load Chat ট্রিগার করি
+      var loadBtn = document.getElementById('showAllMessagesBtn');
+      if (loadBtn) loadBtn.click();
+    }
+    window.showChatContainer();
+    toggleBtn.innerHTML = '❌ Hide Messages';
+  } else {
+    window.hideChatContainer();
+    toggleBtn.innerHTML = '💬 Show Messages';
+  }
 };
-feed.innerHTML = docs.length === 0
-  ? '<div style="text-align:center; padding:20px;">No messages yet.</div>'
-  : docs.map(doc => {
-      // ... আপনার কোড ...
-    }).join('');
 
-window.showChatContainer();   // <-- এই লাইনটি এখানে যোগ করুন
+// আপডেটেড showChatContainer (চ্যাট দেখানো + বাটন স্টেট)
 window.showChatContainer = function() {
   var chat = document.getElementById('chatContainer');
   var loadBtn = document.getElementById('showAllMessagesBtn');
   var hideBtn = document.getElementById('hideChatBtn');
   var expandBtn = document.getElementById('expandChatBtn');
+  var toggleBtn = document.getElementById('toggleChatBtn');
+  
   if (chat) chat.style.display = 'block';
   if (loadBtn) loadBtn.style.display = 'none';
   if (hideBtn) hideBtn.style.display = 'inline-flex';
   if (expandBtn) expandBtn.style.display = 'inline-flex';
+  if (toggleBtn) toggleBtn.innerHTML = '❌ Hide Messages';
 };
 
-window.openExpandedChat = function() {
-  var mainFeed = document.getElementById('chatFeed');
-  var expandedFeed = document.getElementById('expandedChatFeed');
-  if (mainFeed && expandedFeed) {
-    expandedFeed.innerHTML = mainFeed.innerHTML;
-  }
-  var modal = document.getElementById('expandedChatModal');
-  if (modal) modal.style.display = 'flex';
+// আপডেটেড hideChatContainer (চ্যাট লুকানো + বাটন স্টেট)
+window.hideChatContainer = function() {
+  var chat = document.getElementById('chatContainer');
+  var loadBtn = document.getElementById('showAllMessagesBtn');
+  var hideBtn = document.getElementById('hideChatBtn');
+  var expandBtn = document.getElementById('expandChatBtn');
+  var toggleBtn = document.getElementById('toggleChatBtn');
+  
+  if (chat) chat.style.display = 'none';
+  if (loadBtn) loadBtn.style.display = 'inline-flex';
+  if (hideBtn) hideBtn.style.display = 'none';
+  if (expandBtn) expandBtn.style.display = 'none';
+  if (toggleBtn) toggleBtn.innerHTML = '💬 Show Messages';
 };
 
-window.closeExpandedChat = function() {
-  var modal = document.getElementById('expandedChatModal');
-  if (modal) modal.style.display = 'none';
-};
+// openExpandedChat ও closeExpandedChat আগের মতই থাকবে
+
+
+
+
+
 
 
 
