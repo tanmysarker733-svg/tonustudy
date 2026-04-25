@@ -143,26 +143,7 @@
 
 
 
-      /* Reveal Animation – Optimized for 60fps */
-        .fade-up {
-          opacity: 0;
-          transform: translateY(30px);
-          transition: opacity 0.6s ease-out, transform 0.6s ease-out;
-          will-change: opacity, transform;
-        }
-        .fade-up.visible {
-          opacity: 1;
-          transform: translateY(0);
-        }
-    
-
-
-
-              /* Optimized fade-up animation */
-              .fade-up {
-                filter: none !important;
-                transition: opacity 0.5s ease-out, transform 0.5s ease-out !important;
-              }
+      /* fade-up: defined in glassmorphism section below */
 
 
 
@@ -404,17 +385,14 @@
   -webkit-text-fill-color: #0f172a !important;
 }
 
-/* Reveal effect blur already in .fade-up */
+/* Reveal effect — opacity only (no blur, 60fps safe) */
 .fade-up {
-  filter: blur(8px);
   opacity: 0;
-  transform: translateY(40px) scale(0.95);
-  transition: all 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity;
 }
 .fade-up.visible {
-  filter: blur(0);
   opacity: 1;
-  transform: translateY(0) scale(1);
 }
 
 /* Mouse glow effect (optional) */
@@ -1018,10 +996,12 @@ button:hover:not(.no-hover-effect),
   animation: none !important;  /* শিমার বন্ধ */
 }
 
+
 /* 4. will-change সীমিত করি (ব্রাউজারকে ওভারলোড না করতে) */
-.fade-up, .dynamic-content, .subject-card, .dashboard-wrapper {
+.dynamic-content, .subject-card, .dashboard-wrapper {
   will-change: auto !important;
 }
+/* fade-up এ will-change দরকার transition চলাকালীন, তাই সরানো হলো */
 
 /* 5. কাস্টম কার্সার পুরোপুরি বন্ধ */
 .cursor-dot-main, .cursor-ring-main {
@@ -1031,7 +1011,7 @@ body {
   cursor: auto !important;
 }
 
-  
+
 
 /* 7. মোবাইলে আরও আক্রমণাত্মক অপ্টিমাইজেশন */
 @media (max-width: 768px) {
@@ -1129,34 +1109,59 @@ body {
 </div>
 
 <!-- MODALS -->
-<!-- New User Profile Modal -->
+<!-- Modern Profile Modal -->
 <div id="profileModal" class="modal-overlay">
-  <div class="modal-card">
-    <div style="display:flex; justify-content:space-between; align-items:center;">
-      <h2 style="margin:0;">👤 My Profile</h2>
-      <button class="btn-small" onclick="toggleElement('profileModal')">✖</button>
-    </div>
-    <div class="settings-group" style="text-align: center;">
-      <img id="profileDisplayImg" src="https://via.placeholder.com/80" style="width:80px; height:80px; border-radius:50%; object-fit:cover; margin-bottom:10px; border: 3px solid var(--accent-blue);">
-      <h3 style="margin:0;" id="profileDisplayName">Name</h3>
-      <p style="margin:0; font-size:0.8rem; color:var(--text-sub);" id="profileDisplayEmail">email@example.com</p>
-    </div>
-    <div class="settings-group">
-      <h4 style="margin:0 0 10px 0; color:var(--accent-blue);">📝 Profile Info</h4>
-      <div class="settings-row" style="flex-direction: column; align-items: flex-start; border:none; gap: 8px;">
-        <label>Profile Image URL:</label>
-        <input type="text" id="profile_img_input" class="settings-input" style="width: 100%; text-align: left;" placeholder="https://...">
+  <div class="modal-card" style="max-width:500px; padding:0; overflow:hidden; border-radius:28px; gap:0;">
+    <!-- Profile Banner -->
+    <div id="profileBanner" style="height:120px; background:var(--accent-gradient); position:relative; overflow:hidden;">
+      <div style="position:absolute;inset:0;background:radial-gradient(circle at 30% 50%, rgba(255,255,255,0.15) 0%,transparent 70%);"></div>
+      <div style="position:absolute;top:12px;right:12px;">
+        <button class="btn-small" onclick="toggleElement('profileModal')" style="background:rgba(255,255,255,0.2);border-color:rgba(255,255,255,0.3);color:#fff;">✖</button>
       </div>
-      <div class="settings-row" style="flex-direction: column; align-items: flex-start; border:none; gap: 8px; margin-top: 10px;">
-        <label>Facebook Profile Link:</label>
-        <input type="text" id="profile_fb_input" class="settings-input" style="width: 100%; text-align: left;" placeholder="https://facebook.com/...">
+      <!-- Avatar overlapping banner -->
+      <div style="position:absolute;bottom:-36px;left:24px;">
+        <div style="position:relative;width:72px;height:72px;">
+          <img id="profileDisplayImg" src="https://via.placeholder.com/80" style="width:72px;height:72px;border-radius:50%;object-fit:cover;border:3px solid var(--card-bg);box-shadow:0 4px 15px rgba(0,0,0,0.2);">
+          <div id="profileOnlineDot" style="position:absolute;bottom:2px;right:2px;width:14px;height:14px;background:#10b981;border-radius:50%;border:2px solid var(--card-bg);"></div>
+        </div>
       </div>
-      <button class="login-btn" style="width: 100%; margin-top: 15px; border-radius: 8px; padding: 10px;" onclick="saveProfileData()">Save Profile</button>
     </div>
-    <div class="settings-group">
-      <h4 style="margin:0 0 10px 0; color:var(--accent-blue);">💬 My Community Posts</h4>
-      <div id="myPostsList" style="max-height: 200px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px;">
-        <div style="text-align:center; color:var(--text-sub); font-size:0.8rem;">Loading posts...</div>
+    <!-- Profile Info -->
+    <div style="padding:48px 24px 24px 24px; display:flex; flex-direction:column; gap:16px;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;">
+        <div>
+          <h3 style="margin:0 0 2px 0;font-size:1.3rem;" id="profileDisplayName">Name</h3>
+          <p style="margin:0;font-size:0.8rem;color:var(--text-sub);" id="profileDisplayEmail">email@example.com</p>
+          <div id="profileStatsRow" style="display:flex;gap:16px;margin-top:8px;">
+            <div style="text-align:center;"><span id="profilePostCount" style="font-size:1.1rem;font-weight:900;color:var(--accent-blue);">0</span><br><span style="font-size:0.68rem;color:var(--text-sub);font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Posts</span></div>
+            <div style="text-align:center;"><span id="profileSubjDone" style="font-size:1.1rem;font-weight:900;color:var(--color-done);">0%</span><br><span style="font-size:0.68rem;color:var(--text-sub);font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Done</span></div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <a id="profileFbBtn" href="#" target="_blank" class="btn-small" style="display:none;padding:8px 14px;color:var(--accent-blue);border-color:var(--accent-blue);">🔗 Facebook</a>
+        </div>
+      </div>
+
+      <!-- Edit section -->
+      <div class="settings-group" style="margin:0;">
+        <h4 style="margin:0 0 10px 0;color:var(--accent-blue);font-size:0.85rem;">✏️ Edit Profile</h4>
+        <div class="settings-row" style="flex-direction:column;align-items:flex-start;border:none;gap:6px;">
+          <label style="font-size:0.78rem;font-weight:700;color:var(--text-sub);">Profile Image URL</label>
+          <input type="text" id="profile_img_input" class="settings-input" style="width:100%;text-align:left;font-size:0.82rem;" placeholder="https://...">
+        </div>
+        <div class="settings-row" style="flex-direction:column;align-items:flex-start;gap:6px;margin-top:8px;border:none;">
+          <label style="font-size:0.78rem;font-weight:700;color:var(--text-sub);">Facebook Profile Link</label>
+          <input type="text" id="profile_fb_input" class="settings-input" style="width:100%;text-align:left;font-size:0.82rem;" placeholder="https://facebook.com/...">
+        </div>
+        <button class="login-btn" style="width:100%;margin-top:12px;border-radius:10px;padding:10px;" onclick="saveProfileData()">💾 Save Profile</button>
+      </div>
+
+      <!-- My Posts -->
+      <div class="settings-group" style="margin:0;">
+        <h4 style="margin:0 0 10px 0;color:var(--accent-blue);font-size:0.85rem;">💬 My Community Posts</h4>
+        <div id="myPostsList" style="max-height:220px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;">
+          <div style="text-align:center;color:var(--text-sub);font-size:0.8rem;">Loading posts...</div>
+        </div>
       </div>
     </div>
   </div>
@@ -1202,12 +1207,68 @@ body {
 
 
 
-                        <div class="settings-group">
+                          <div class="settings-group">
                           <h4 style="margin:0 0 10px 0; color:var(--accent-blue);">✨ UI Preferences</h4>
                           <div class="settings-row"><span>Ambient Hero Orbs</span> <input type="checkbox" id="tgl_orbs" onchange="updateUIToggles()" style="width:18px;height:18px;cursor:pointer;"></div>
                           <div class="settings-row"><span>Subject Vibe Animations</span> <input type="checkbox" id="tgl_vibes" onchange="updateUIToggles()" style="width:18px;height:18px;cursor:pointer;"></div>
                           <div class="settings-row"><span>Chapter Bar Fill</span> <input type="checkbox" id="tgl_gradient_bars" onchange="updateUIToggles()" style="width:18px;height:18px;cursor:pointer;"></div>
                           <div class="settings-row"><span>Bar Start Color</span> <input type="color" id="cbar_start" class="color-picker" onchange="updateChapterBarColors()"></div>
+
+                          <!-- ✨ NEW: Animation Filter Toggles -->
+                          <div class="settings-row" style="flex-direction:column; align-items:flex-start; gap:8px; border:none; margin-top:6px;">
+                            <span style="font-weight:800; font-size:0.85rem;">🎞️ Appear/Disappear Filter</span>
+                            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                              <button id="filter_opacity_btn" class="btn-small" onclick="setAnimationFilter('opacity')" style="flex:1; padding:8px 6px;">
+                                ✨ Opacity Only
+                              </button>
+                              <button id="filter_blur_btn" class="btn-small" onclick="setAnimationFilter('blur')" style="flex:1; padding:8px 6px;">
+                                🌫️ Blur + Opacity
+                              </button>
+                              <button id="filter_off_btn" class="btn-small" onclick="setAnimationFilter('off')" style="flex:1; padding:8px 6px;">
+                                ⚡ Off (Instant)
+                              </button>
+                            </div>
+                            <p style="font-size:0.72rem; color:var(--text-sub); margin:0;">Controls how elements appear when scrolling.</p>
+                          </div>
+
+                          <!-- 🌫️ NEW: Blur Intensity & Trigger Controls -->
+                          <div class="settings-row" style="flex-direction:column;align-items:flex-start;gap:10px;border:none;margin-top:4px;padding-top:10px;border-top:1px dashed var(--border);">
+                            <span style="font-weight:800;font-size:0.85rem;">🌫️ Blur Intensity & Trigger</span>
+                            <div class="settings-row" style="width:100%;border:none;padding:0;">
+                              <span style="font-size:0.82rem;">Blur Amount</span>
+                              <div style="display:flex;align-items:center;gap:8px;">
+                                <input type="range" min="0" max="30" value="8" step="2" id="blurIntensitySlider" oninput="updateBlurIntensity(this.value)" style="width:90px;">
+                                <span id="blurIntensityVal" style="font-size:0.78rem;font-weight:800;min-width:32px;color:var(--accent-blue);">8px</span>
+                              </div>
+                            </div>
+                            <div class="settings-row" style="width:100%;border:none;padding:0;">
+                              <span style="font-size:0.82rem;">Card Opacity</span>
+                              <div style="display:flex;align-items:center;gap:8px;">
+                                <input type="range" min="40" max="100" value="75" step="5" id="cardOpacitySlider" oninput="updateCardOpacity(this.value)" style="width:90px;">
+                                <span id="cardOpacityVal" style="font-size:0.78rem;font-weight:800;min-width:32px;color:var(--accent-blue);">75%</span>
+                              </div>
+                            </div>
+                            <div class="settings-row" style="width:100%;border:none;padding:0;">
+                              <span style="font-size:0.82rem;">Blur Trigger</span>
+                              <select id="blurTriggerSelect" class="settings-input" style="width:130px;font-size:0.78rem;" onchange="setBlurTrigger(this.value)">
+                                <option value="scroll">On Scroll</option>
+                                <option value="hover">On Hover</option>
+                                <option value="always">Always On</option>
+                                <option value="focus">On Focus</option>
+                                <option value="night">Night Mode</option>
+                                <option value="reduced">Low Motion</option>
+                              </select>
+                            </div>
+                            <div class="settings-row" style="width:100%;border:none;padding:0;">
+                              <span style="font-size:0.82rem;">Nav Blur</span>
+                              <input type="checkbox" id="tgl_nav_blur" onchange="updateNavBlur(this.checked)" style="width:18px;height:18px;cursor:pointer;" checked>
+                            </div>
+                            <div class="settings-row" style="width:100%;border:none;padding:0;">
+                              <span style="font-size:0.82rem;">Card Glass Effect</span>
+                              <input type="checkbox" id="tgl_card_glass" onchange="updateCardGlass(this.checked)" style="width:18px;height:18px;cursor:pointer;" checked>
+                            </div>
+                            <p style="font-size:0.72rem;color:var(--text-sub);margin:0;">Controls backdrop blur across the entire UI.</p>
+                          </div>
                           <div class="settings-row"><span>Bar Mid Color</span> <input type="color" id="cbar_mid" class="color-picker" onchange="updateChapterBarColors()"></div>
                           <div class="settings-row" style="border:none;"><span>Bar End Color</span> <input type="color" id="cbar_end" class="color-picker" onchange="updateChapterBarColors()"></div>
                         </div>
@@ -1440,14 +1501,60 @@ body {
   </div>
 </div>
 
-      <!-- Community Users Modal -->
+      <!-- Community Users Modal - Modern Design -->
       <div id="allUsersModal" class="modal-overlay">
-        <div class="modal-card">
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <h3 style="margin:0;">🌍 Users</h3>
+        <div class="modal-card" style="max-width:520px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+            <div>
+              <h3 style="margin:0;font-size:1.1rem;">🌍 Community Users</h3>
+              <p style="margin:0;font-size:0.75rem;color:var(--text-sub);">Click a profile to view their tracker</p>
+            </div>
             <button class="btn-small" onclick="toggleElement('allUsersModal')">✖</button>
           </div>
-          <div id="allUsersContent" style="display:flex; flex-direction:column; gap:10px; overflow-y: auto; max-height: 400px;"></div>
+          <!-- Search bar -->
+          <div style="position:relative;">
+            <input type="text" id="userSearchInput" oninput="filterUsers(this.value)" placeholder="🔍 Search users..." class="settings-input" style="width:100%;text-align:left;padding-left:14px;font-size:0.85rem;">
+          </div>
+          <div id="allUsersContent" style="display:flex;flex-direction:column;gap:8px;overflow-y:auto;max-height:420px;"></div>
+          <div id="userCountBadge" style="text-align:center;font-size:0.75rem;color:var(--text-sub);margin-top:4px;"></div>
+        </div>
+      </div>
+
+      <!-- User Profile Peek Modal -->
+      <div id="userPeekModal" class="modal-overlay">
+        <div class="modal-card" style="max-width:420px;padding:0;overflow:hidden;border-radius:28px;gap:0;">
+          <div id="peekBanner" style="height:100px;background:var(--accent-gradient);position:relative;overflow:hidden;">
+            <div style="position:absolute;inset:0;background:radial-gradient(circle at 30% 50%,rgba(255,255,255,0.15) 0%,transparent 70%);"></div>
+            <div style="position:absolute;top:10px;right:10px;">
+              <button class="btn-small" onclick="toggleElement('userPeekModal')" style="background:rgba(255,255,255,0.2);border-color:rgba(255,255,255,0.3);color:#fff;">✖</button>
+            </div>
+            <div style="position:absolute;bottom:-30px;left:20px;">
+              <img id="peekAvatar" src="https://via.placeholder.com/60" style="width:60px;height:60px;border-radius:50%;object-fit:cover;border:3px solid var(--card-bg);box-shadow:0 4px 15px rgba(0,0,0,0.2);">
+            </div>
+          </div>
+          <div style="padding:40px 20px 20px 20px;display:flex;flex-direction:column;gap:12px;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;">
+              <div>
+                <h3 style="margin:0 0 2px 0;font-size:1.2rem;" id="peekName">User</h3>
+                <p style="margin:0;font-size:0.75rem;color:var(--text-sub);" id="peekMission">Mission: —</p>
+              </div>
+              <div style="display:flex;gap:8px;">
+                <a id="peekFbBtn" href="#" target="_blank" class="btn-small" style="display:none;color:var(--accent-blue);border-color:var(--accent-blue);">🔗 FB</a>
+                <button id="peekViewBtn" class="login-btn" style="padding:8px 16px;border-radius:10px;font-size:0.82rem;" onclick="">👁 View Tracker</button>
+              </div>
+            </div>
+            <div style="display:flex;gap:20px;">
+              <div style="text-align:center;"><span id="peekDone" style="font-size:1.2rem;font-weight:900;color:var(--color-done);">—</span><br><span style="font-size:0.68rem;color:var(--text-sub);font-weight:700;text-transform:uppercase;">Syllabus</span></div>
+              <div style="text-align:center;"><span id="peekTime" style="font-size:1.2rem;font-weight:900;color:var(--accent-blue);">—</span><br><span style="font-size:0.68rem;color:var(--text-sub);font-weight:700;text-transform:uppercase;">Time%</span></div>
+            </div>
+            <!-- Recent posts preview -->
+            <div class="settings-group" style="margin:0;">
+              <h4 style="margin:0 0 8px 0;color:var(--accent-blue);font-size:0.82rem;">💬 Recent Posts</h4>
+              <div id="peekPosts" style="display:flex;flex-direction:column;gap:6px;max-height:150px;overflow-y:auto;">
+                <div style="text-align:center;color:var(--text-sub);font-size:0.8rem;">No posts yet.</div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -1540,6 +1647,20 @@ body {
   <div style="width:100%; display:flex; flex-direction:column; align-items:center; justify-content:center;">
     <h1 id="hero_greet" style="font-size: 2.2rem; margin-bottom: 5px; text-align:center;">Good Morning, <span id="hero_name" class="editable-text" contenteditable="true" spellcheck="false" onblur="saveHeroTexts()">Tonu</span></h1>
     <p class="editable-text" style="color:var(--text-sub); font-size:1.1rem; font-weight:600; text-align:center;" onclick="openMissionSetup()">Mission: <span id="hero_mission_display">HSC Syllabus (Set Dates)</span> 📅</p>
+    <div id="etaRow" style="display:flex;align-items:center;gap:12px;margin-top:10px;flex-wrap:wrap;justify-content:center;">
+      <span id="etaBadge" style="background:rgba(37,99,235,0.1);border:1px solid rgba(37,99,235,0.25);border-radius:100px;padding:5px 14px;font-size:0.8rem;font-weight:700;color:var(--accent-blue);display:flex;align-items:center;gap:6px;">
+        <span style="width:6px;height:6px;border-radius:50%;background:var(--accent-blue);display:inline-block;animation:pulseA 2s infinite alternate;"></span>
+        <span id="etaText">ETA: calculating...</span>
+      </span>
+      <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:0.8rem;font-weight:700;color:var(--text-sub);">
+        <span>ETA</span>
+        <div style="position:relative;width:38px;height:21px;">
+          <input type="checkbox" id="etaToggle" checked onchange="toggleEtaDisplay(this.checked)" style="opacity:0;width:0;height:0;position:absolute;">
+          <div id="etaTrack" onclick="document.getElementById('etaToggle').click()" style="position:absolute;inset:0;background:var(--accent-blue);border-radius:100px;transition:all 0.3s;cursor:pointer;"></div>
+          <div id="etaThumb" style="position:absolute;top:3px;left:21px;width:15px;height:15px;background:#fff;border-radius:50%;transition:all 0.3s;pointer-events:none;box-shadow:0 2px 4px rgba(0,0,0,0.3);"></div>
+        </div>
+      </label>
+    </div>
   </div>
   
   <div class="dash-stats-row">
@@ -1857,15 +1978,40 @@ let sessionDuration = 25 * 60;      // store current session length
     document.getElementById('profileDisplayImg').src = userSettings.profileImg || "https://via.placeholder.com/80";
     document.getElementById('profile_img_input').value = userSettings.profileImg || "";
     document.getElementById('profile_fb_input').value = userSettings.fbLink || "";
-    
-    const myPostsDiv = document.getElementById('myPostsList');
+
+    // Facebook button
+    const fbBtn = document.getElementById('profileFbBtn');
+    if(userSettings.fbLink) { fbBtn.style.display = 'flex'; fbBtn.href = userSettings.fbLink; }
+    else fbBtn.style.display = 'none';
+
+    // Post count
     const myPosts = allChatMessages.filter(m => m.userId === currentUser.uid);
+    const postCountEl = document.getElementById('profilePostCount');
+    if(postCountEl) postCountEl.textContent = myPosts.length;
+
+    // Syllabus done %
+    let total = 0, done = 0;
+    syllabusData.forEach(sub => {
+      const chaps = sub.hasPapers ? sub.papers.flatMap(p => p.chapters) : (sub.chapters || []);
+      chaps.forEach(c => { total++; done += getEffectiveProgress(c); });
+    });
+    const donePerc = total > 0 ? Math.round(done/total) + '%' : '0%';
+    const subjEl = document.getElementById('profileSubjDone');
+    if(subjEl) subjEl.textContent = donePerc;
+
+    const myPostsDiv = document.getElementById('myPostsList');
     if(myPosts.length === 0) {
       myPostsDiv.innerHTML = '<div style="text-align:center; color:var(--text-sub); font-size:0.8rem;">No posts yet.</div>';
     } else {
-      myPostsDiv.innerHTML = myPosts.map(d => {
+      myPostsDiv.innerHTML = myPosts.slice().reverse().map(d => {
         let time = d.timestamp ? new Date(d.timestamp.toDate()).toLocaleDateString() : '';
-        return `<div style="background:var(--bg); padding:10px; border-radius:8px; font-size:0.85rem;"><div style="color:var(--text-sub); font-size:0.7rem; margin-bottom:4px;">${time}</div>${d.text.replace(/\n/g,'<br>')}</div>`;
+        const txt = (d.text || '').replace(/\n/g,'<br>');
+        const preview = txt.length > 120 ? txt.slice(0,120) + '...' : txt;
+        return `<div style="background:var(--bg);padding:10px 12px;border-radius:10px;font-size:0.82rem;border:1px solid var(--border);">
+          <div style="color:var(--text-sub);font-size:0.68rem;margin-bottom:4px;font-weight:700;">${time}</div>
+          <div id="postPreview_${d.userId}_${time}" class="post-preview-text">${preview}</div>
+          ${txt.length > 120 ? `<button onclick="expandProfilePost(this, '${encodeURIComponent(txt)}')" style="background:none;border:none;color:var(--accent-blue);font-size:0.75rem;font-weight:700;padding:4px 0;cursor:pointer;font-family:inherit;">See more ↓</button>` : ''}
+        </div>`;
       }).join('');
     }
     toggleElement('profileModal');
@@ -1875,9 +2021,18 @@ let sessionDuration = 25 * 60;      // store current session length
     if (adminMode) return;
     userSettings.profileImg = document.getElementById('profile_img_input').value.trim();
     userSettings.fbLink = document.getElementById('profile_fb_input').value.trim();
+    const fbBtn = document.getElementById('profileFbBtn');
+    if(fbBtn) { if(userSettings.fbLink) { fbBtn.style.display='flex'; fbBtn.href=userSettings.fbLink; } else fbBtn.style.display='none'; }
     updateNavProfile();
     toggleElement('profileModal');
     silentCloudSave();
+  };
+
+  window.expandProfilePost = (btn, encodedTxt) => {
+    const txt = decodeURIComponent(encodedTxt);
+    const container = btn.previousElementSibling;
+    if(container) container.innerHTML = txt;
+    btn.textContent = ''; btn.style.display = 'none';
   };
 
   const updateNavProfile = () => {
@@ -1898,6 +2053,40 @@ let sessionDuration = 25 * 60;      // store current session length
           document.getElementById('orb1').style.display = userSettings.uiConfigs.showOrbs ? 'block' : 'none';
           document.getElementById('orb2').style.display = userSettings.uiConfigs.showOrbs ? 'block' : 'none';
           renderUI(); silentCloudSave();
+      };
+
+      // ── Animation Filter: opacity / blur+opacity / off ──
+      window.setAnimationFilter = (mode) => {
+        if(adminMode) return;
+        if(!userSettings.uiConfigs) userSettings.uiConfigs = {};
+        userSettings.uiConfigs.animFilter = mode;
+        applyAnimationFilter(mode);
+        // Highlight active button
+        ['opacity','blur','off'].forEach(m => {
+          const btn = document.getElementById(`filter_${m}_btn`);
+          if(btn) btn.style.background = (m === mode) ? 'var(--accent-blue)' : '';
+          if(btn) btn.style.color = (m === mode) ? '#fff' : '';
+          if(btn) btn.style.borderColor = (m === mode) ? 'var(--accent-blue)' : '';
+        });
+        silentCloudSave();
+      };
+
+      const applyAnimationFilter = (mode) => {
+        const styleId = 'anim-filter-style';
+        let el = document.getElementById(styleId);
+        if(!el) { el = document.createElement('style'); el.id = styleId; document.head.appendChild(el); }
+        if(mode === 'blur') {
+          el.textContent = `.fade-up { opacity: 0; filter: blur(6px); transition: opacity 0.75s cubic-bezier(0.16,1,0.3,1), filter 0.75s ease; will-change: opacity; } .fade-up.visible { opacity: 1; filter: blur(0px); }`;
+        } else if(mode === 'off') {
+          el.textContent = `.fade-up { opacity: 1 !important; filter: none !important; transition: none !important; }`;
+        } else {
+          // default: opacity only — NO transform (prevents tilt/flicker conflict)
+          el.textContent = `.fade-up { opacity: 0; filter: none; transition: opacity 0.65s cubic-bezier(0.16,1,0.3,1); will-change: opacity; } .fade-up.visible { opacity: 1; }`;
+        }
+        // Re-trigger visible elements
+        document.querySelectorAll('.fade-up').forEach(el => {
+          if(mode === 'off') { el.classList.add('visible'); }
+        });
       };
 
 
@@ -1964,6 +2153,14 @@ let sessionDuration = 25 * 60;      // store current session length
     document.getElementById('leg_btn_total').classList.toggle('active', graphConfig.visTotal);
     
     updateNavProfile();
+    
+    // Restore animation filter button state
+    const animFilter = userSettings.uiConfigs.animFilter || 'opacity';
+    applyAnimationFilter(animFilter);
+    ['opacity','blur','off'].forEach(m => {
+      const btn = document.getElementById(`filter_${m}_btn`);
+      if(btn) { btn.style.background = (m === animFilter) ? 'var(--accent-blue)' : ''; btn.style.color = (m === animFilter) ? '#fff' : ''; btn.style.borderColor = (m === animFilter) ? 'var(--accent-blue)' : ''; }
+    });
   };
 
   window.updateGlobalColors = () => { if(adminMode) return; userSettings.barColors.done = document.getElementById('col_done').value; userSettings.barColors.running = document.getElementById('col_run').value; userSettings.barColors.pending = document.getElementById('col_pend').value; applyCustomSettings(); renderUI(); renderHeroDashboard(); renderChart(); silentCloudSave(); };
@@ -2514,7 +2711,8 @@ let sessionDuration = 25 * 60;      // store current session length
                       <div style="display:flex; flex-direction:column; max-width:80%; align-items:${isMe ? 'flex-end' : 'flex-start'};">
                         <span style="font-size:0.75rem; color:var(--text-sub); margin-bottom:4px; font-weight:700;">${nameDisplay} • ${time}</span>
                         <div class="message-bubble-body" style="${isMe ? 'background:var(--chat-own-bubble); border-top-right-radius:4px; border-top-left-radius:20px;' : ''}">
-                          ${d.text.replace(/\n/g, '<br>')}
+                          <div id="msgBody_${messageId}" style="${d.text.length > 200 ? 'display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;' : ''}">${d.text.replace(/\n/g, '<br>')}</div>
+                          ${d.text.length > 200 ? `<button onclick="expandMsg('${messageId}')" style="background:none;border:none;color:var(--accent-blue);font-size:0.75rem;font-weight:700;padding:4px 0;cursor:pointer;font-family:inherit;" id="expandBtn_${messageId}">See more ↓</button>` : ''}
                         </div>
                         ${actionButtons}
                       </div>
@@ -3178,21 +3376,38 @@ updateStopwatchDisplay();
                 return;
               }
               
-              feed.innerHTML = snap.docs.map(doc => {
+              // Build allUsersData for search/peek
+              allUsersData = snap.docs.map(doc => {
                 const data = doc.data();
                 const settings = data.userSettings || {};
-                const name = settings.customName || 'Anonymous';
-                const email = data.userEmail || ''; // যদি ইমেইল সেভ করেন
-                return `
-                  <div style="background:var(--panel-bg); padding:15px; border-radius:12px; border:1px solid var(--border); display:flex; justify-content:space-between; font-weight:700; align-items:center;">
-                    <div>
-                      <span>${name}</span>
-                      ${email ? `<div style="font-size:0.7rem; color:var(--text-sub);">${email}</div>` : ''}
-                    </div>
-                    <button class="btn-small" onclick="viewUserData('${doc.id}')">👁 View</button>
-                  </div>
-                `;
-              }).join('');
+                const syllabus = data.syllabus || [];
+                // calculate overall done %
+                let total = 0, done = 0;
+                syllabus.forEach(sub => {
+                  const chaps = sub.hasPapers ? sub.papers.flatMap(p => p.chapters) : (sub.chapters || []);
+                  chaps.forEach(c => { total++; done += getEffectiveProgress(c); });
+                });
+                const donePerc = total > 0 ? Math.round(done/total) + '%' : '0%';
+                // time elapsed
+                const start = settings.missionStart ? new Date(settings.missionStart) : null;
+                const end = settings.missionEnd ? new Date(settings.missionEnd) : null;
+                let timePerc = '—';
+                if(start && end) {
+                  const elapsed = Date.now() - start; const total2 = end - start;
+                  timePerc = Math.max(0, Math.min(100, Math.round(elapsed/total2*100))) + '%';
+                }
+                return {
+                  id: doc.id,
+                  name: settings.customName || 'Anonymous',
+                  img: settings.profileImg || '',
+                  fb: settings.fbLink || '',
+                  mission: settings.missionTitle || '',
+                  done: donePerc,
+                  time: timePerc
+                };
+              });
+
+              renderUserCards(allUsersData);
             } catch (err) {
               console.error("Failed to load users:", err);
               feed.innerHTML = `<div style="color:var(--color-pending); text-align:center;">Error: ${err.message}</div>`;
@@ -3226,6 +3441,186 @@ updateStopwatchDisplay();
 
   window.exitAdminMode = () => { if (!adminMode) return; syllabusData = JSON.parse(backupSyllabus); studyLogs = JSON.parse(backupStudyLogs); userSettings = JSON.parse(backupUserSettings); adminMode = false; adminTargetUserId = null; applyCustomSettings(); updateGreeting(userSettings.customName); renderUI(); renderHeroDashboard(); renderChart(); document.getElementById('exitAdminBtn').style.display = 'none'; };
   window.closeAllUsersModal = () => toggleElement('allUsersModal');
+
+  window.expandMsg = (id) => {
+    const body = document.getElementById('msgBody_' + id);
+    const btn = document.getElementById('expandBtn_' + id);
+    if(!body || !btn) return;
+    const collapsed = btn.textContent.includes('more');
+    if(collapsed) {
+      body.style.display = 'block'; body.style.webkitLineClamp = 'unset'; body.style.overflow = 'visible';
+      btn.textContent = 'See less ↑';
+    } else {
+      body.style.display = '-webkit-box'; body.style.webkitLineClamp = '4'; body.style['-webkit-box-orient'] = 'vertical'; body.style.overflow = 'hidden';
+      btn.textContent = 'See more ↓';
+    }
+  };
+
+  // Restore blur/opacity/ETA settings on load
+  const restoreBlurSettings = () => {
+    if(!userSettings.uiConfigs) return;
+    const ui = userSettings.uiConfigs;
+    if(ui.blurIntensity !== undefined) {
+      const sl = document.getElementById('blurIntensitySlider');
+      const vl = document.getElementById('blurIntensityVal');
+      if(sl) sl.value = ui.blurIntensity;
+      if(vl) vl.textContent = ui.blurIntensity + 'px';
+      document.documentElement.style.setProperty('--glass-blur', `blur(${ui.blurIntensity}px)`);
+    }
+    if(ui.cardOpacity !== undefined) {
+      const sl = document.getElementById('cardOpacitySlider');
+      const vl = document.getElementById('cardOpacityVal');
+      if(sl) sl.value = ui.cardOpacity;
+      if(vl) vl.textContent = ui.cardOpacity + '%';
+    }
+    if(ui.blurTrigger) {
+      const sel = document.getElementById('blurTriggerSelect');
+      if(sel) sel.value = ui.blurTrigger;
+      setBlurTrigger(ui.blurTrigger);
+    }
+    if(ui.navBlur === false) { const cb = document.getElementById('tgl_nav_blur'); if(cb) { cb.checked = false; updateNavBlur(false); } }
+    if(ui.cardGlass === false) { const cb = document.getElementById('tgl_card_glass'); if(cb) { cb.checked = false; updateCardGlass(false); } }
+    if(ui.etaOn === false) { const cb = document.getElementById('etaToggle'); if(cb) { cb.checked = false; toggleEtaDisplay(false); } }
+  };
+  setTimeout(restoreBlurSettings, 1200);
+
+  // ===== ETA TOGGLE =====
+  window.toggleEtaDisplay = (checked) => {
+    const row = document.getElementById('etaRow');
+    const badge = document.getElementById('etaBadge');
+    const track = document.getElementById('etaTrack');
+    const thumb = document.getElementById('etaThumb');
+    if(badge) badge.style.display = checked ? 'flex' : 'none';
+    if(track) track.style.background = checked ? 'var(--accent-blue)' : 'var(--border)';
+    if(thumb) thumb.style.left = checked ? '21px' : '3px';
+    if(!userSettings.uiConfigs) userSettings.uiConfigs = {};
+    userSettings.uiConfigs.etaOn = checked;
+    silentCloudSave();
+  };
+
+  const updateETABadge = () => {
+    if(!userSettings.missionEnd) return;
+    const now = new Date();
+    const end = new Date(userSettings.missionEnd);
+    const diffMs = end - now;
+    if(diffMs < 0) { document.getElementById('etaText').textContent = 'ETA: Mission Complete!'; return; }
+    const days = Math.floor(diffMs / (1000*60*60*24));
+    const hrs = Math.floor((diffMs % (1000*60*60*24)) / (1000*60*60));
+    document.getElementById('etaText').textContent = days > 0 ? `ETA: ${days}d ${hrs}h left` : `ETA: ${hrs}h left`;
+  };
+  setTimeout(updateETABadge, 800);
+
+  // ===== BLUR / OPACITY CONTROLS =====
+  window.updateBlurIntensity = (val) => {
+    document.getElementById('blurIntensityVal').textContent = val + 'px';
+    document.documentElement.style.setProperty('--glass-blur', `blur(${val}px)`);
+    if(!userSettings.uiConfigs) userSettings.uiConfigs = {};
+    userSettings.uiConfigs.blurIntensity = val;
+    silentCloudSave();
+  };
+  window.updateCardOpacity = (val) => {
+    document.getElementById('cardOpacityVal').textContent = val + '%';
+    const alpha = (val/100).toFixed(2);
+    const theme = document.documentElement.getAttribute('data-theme');
+    const base = theme === 'dark' ? `rgba(30, 41, 59, ${alpha})` : `rgba(255, 255, 255, ${alpha})`;
+    document.documentElement.style.setProperty('--card-bg', base);
+    if(!userSettings.uiConfigs) userSettings.uiConfigs = {};
+    userSettings.uiConfigs.cardOpacity = val;
+    silentCloudSave();
+  };
+  window.setBlurTrigger = (mode) => {
+    const styleId = 'blur-trigger-style';
+    let el = document.getElementById(styleId);
+    if(!el) { el = document.createElement('style'); el.id = styleId; document.head.appendChild(el); }
+    if(mode === 'always') {
+      el.textContent = `.subject-card, .dashboard-wrapper, .chat-container, .chart-section { backdrop-filter: var(--glass-blur) !important; }`;
+    } else if(mode === 'hover') {
+      el.textContent = `.subject-card:hover, .dashboard-wrapper:hover { backdrop-filter: var(--glass-blur) !important; transition: backdrop-filter 0.4s ease; }`;
+    } else if(mode === 'focus') {
+      el.textContent = `*:focus-within { backdrop-filter: var(--glass-blur) !important; }`;
+    } else if(mode === 'night') {
+      const hrs = new Date().getHours();
+      const isNight = hrs >= 20 || hrs < 6;
+      el.textContent = isNight ? `.subject-card, .dashboard-wrapper { backdrop-filter: var(--glass-blur) !important; }` : '';
+    } else if(mode === 'reduced') {
+      el.textContent = `@media (prefers-reduced-motion: reduce) { .subject-card, .dashboard-wrapper { backdrop-filter: var(--glass-blur) !important; } }`;
+    } else { el.textContent = ''; }
+    if(!userSettings.uiConfigs) userSettings.uiConfigs = {};
+    userSettings.uiConfigs.blurTrigger = mode;
+    silentCloudSave();
+  };
+  window.updateNavBlur = (checked) => {
+    const nav = document.querySelector('.top-nav');
+    if(nav) nav.style.backdropFilter = checked ? 'var(--glass-blur)' : 'none';
+    if(!userSettings.uiConfigs) userSettings.uiConfigs = {};
+    userSettings.uiConfigs.navBlur = checked;
+    silentCloudSave();
+  };
+  window.updateCardGlass = (checked) => {
+    const styleId = 'card-glass-style';
+    let el = document.getElementById(styleId);
+    if(!el) { el = document.createElement('style'); el.id = styleId; document.head.appendChild(el); }
+    el.textContent = checked ? '' : `.subject-card, .dashboard-wrapper, .chart-section, .chat-container { backdrop-filter: none !important; }`;
+    if(!userSettings.uiConfigs) userSettings.uiConfigs = {};
+    userSettings.uiConfigs.cardGlass = checked;
+    silentCloudSave();
+  };
+
+  // ===== USER SEARCH & PROFILE PEEK =====
+  let allUsersData = [];
+  window.filterUsers = (query) => {
+    const q = query.toLowerCase();
+    const filtered = q ? allUsersData.filter(u => (u.name||'').toLowerCase().includes(q)) : allUsersData;
+    renderUserCards(filtered);
+  };
+
+  const renderUserCards = (users) => {
+    const feed = document.getElementById('allUsersContent');
+    const badge = document.getElementById('userCountBadge');
+    if(badge) badge.textContent = `${users.length} user${users.length !== 1 ? 's' : ''} found`;
+    if(!users.length) { feed.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-sub);">No users found.</div>'; return; }
+    const colors = ['#2563eb','#7c3aed','#10b981','#f59e0b','#ef4444','#06b6d4','#ec4899','#8b5cf6'];
+    feed.innerHTML = users.map((u, i) => {
+      const c = colors[i % colors.length];
+      const initial = (u.name || 'A').charAt(0).toUpperCase();
+      const avatarHtml = u.img
+        ? `<img src="${u.img}" style="width:44px;height:44px;border-radius:50%;object-fit:cover;border:2px solid var(--border);">`
+        : `<div style="width:44px;height:44px;border-radius:50%;background:${c};display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:1.1rem;">${initial}</div>`;
+      return `<div onclick="peekUser('${u.id}')" style="background:var(--panel-bg);padding:12px 14px;border-radius:14px;border:1px solid var(--border);display:flex;align-items:center;gap:12px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--accent-blue)';this.style.transform='translateX(3px)'" onmouseout="this.style.borderColor='var(--border)';this.style.transform=''">
+        ${avatarHtml}
+        <div style="flex:1;min-width:0;">
+          <div style="font-weight:800;font-size:0.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${u.name || 'Anonymous'}</div>
+          <div style="font-size:0.72rem;color:var(--text-sub);">${u.mission || 'No mission set'}</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-shrink:0;">
+          <span style="background:var(--panel-bg);border:1px solid var(--border);border-radius:6px;padding:3px 8px;font-size:0.7rem;font-weight:800;color:var(--color-done);">${u.done || '0%'}</span>
+          <button class="btn-small" style="padding:5px 10px;font-size:0.72rem;" onclick="event.stopPropagation();viewUserData('${u.id}')">👁 View</button>
+        </div>
+      </div>`;
+    }).join('');
+  };
+
+  window.peekUser = async (id) => {
+    const u = allUsersData.find(x => x.id === id);
+    if(!u) return;
+    document.getElementById('peekName').textContent = u.name || 'Anonymous';
+    document.getElementById('peekMission').textContent = 'Mission: ' + (u.mission || '—');
+    document.getElementById('peekDone').textContent = u.done || '—';
+    document.getElementById('peekTime').textContent = u.time || '—';
+    document.getElementById('peekAvatar').src = u.img || 'https://via.placeholder.com/60';
+    const fbBtn = document.getElementById('peekFbBtn');
+    if(u.fb) { fbBtn.style.display = 'flex'; fbBtn.href = u.fb; } else { fbBtn.style.display = 'none'; }
+    document.getElementById('peekViewBtn').onclick = () => { toggleElement('userPeekModal'); viewUserData(id); };
+    // Recent posts
+    const postsDiv = document.getElementById('peekPosts');
+    const userPosts = allChatMessages.filter(m => m.userId === id).slice(-3).reverse();
+    postsDiv.innerHTML = userPosts.length ? userPosts.map(p => {
+      const txt = (p.text || '').replace(/\n/g,' ');
+      const short = txt.length > 100 ? txt.slice(0,100) + '...' : txt;
+      return `<div style="background:var(--bg);padding:8px 10px;border-radius:8px;font-size:0.8rem;color:var(--text-main);">${short}</div>`;
+    }).join('') : '<div style="text-align:center;color:var(--text-sub);font-size:0.8rem;">No posts yet.</div>';
+    toggleElement('userPeekModal');
+  };
 
 
 
@@ -3523,41 +3918,52 @@ updateStopwatchDisplay();
     </div>
     <script>
         const sections = document.querySelectorAll('.section'); let smoothScrollY = window.scrollY;
-        
 
-
-
-          function renderParallax() {
-              smoothScrollY += (window.scrollY - smoothScrollY) * 0.06;   // smoother follow
-              sections.forEach(sec => {
-                  const content = sec.querySelector('.dynamic-content');
-                  const rect = sec.getBoundingClientRect();
-                  const absoluteTop = window.scrollY + rect.top;
-                  const sectionCenter = absoluteTop + (rect.height / 2);
-                  const viewCenter = smoothScrollY + (window.innerHeight / 2);
-                  let distance = sectionCenter - viewCenter;
-                  let ratio = distance / (window.innerHeight * 0.7);      // less sensitive
-                  ratio = Math.max(-1, Math.min(1, ratio));
-                  const absRatio = Math.abs(ratio);
-                  
-                  // Gentler opacity fade: min 0.75, less drop per ratio
-                  const opacity = Math.max(0.75, 1 - (absRatio * 0.5));
-                  // Subtler scale and translation
-                  const scale = 1 - (absRatio * 0.05);
-                  const translateY = ratio * 60;
-                  
-                  content.style.opacity = opacity;
-                  content.style.transform = \`translateY(\${translateY}px) scale(\${scale})\`;
-              });
-              requestAnimationFrame(renderParallax);
-          }
-
-
-
+        // ── Dreamy opacity-based parallax (PC & Mobile optimised) ──
+        function renderParallax() {
+            smoothScrollY += (window.scrollY - smoothScrollY) * 0.048;
+            const isMobile = window.innerWidth < 768;
+            sections.forEach(sec => {
+                const content = sec.querySelector('.dynamic-content');
+                if(!content) return;
+                const rect = sec.getBoundingClientRect();
+                const absoluteTop = window.scrollY + rect.top;
+                const sectionCenter = absoluteTop + (rect.height / 2);
+                const viewCenter = smoothScrollY + (window.innerHeight / 2);
+                let distance = sectionCenter - viewCenter;
+                let ratio = distance / (window.innerHeight * (isMobile ? 1.0 : 0.82));
+                ratio = Math.max(-1, Math.min(1, ratio));
+                const absRatio = Math.abs(ratio);
+                // Opacity does the dreamy heavy lifting
+                const opacity = Math.max(0.48, 1 - (absRatio * 0.7));
+                const scale = 1 - (absRatio * (isMobile ? 0.018 : 0.03));
+                const translateY = ratio * (isMobile ? 24 : 40);
+                content.style.opacity = opacity;
+                content.style.transform = \`translateY(\${translateY}px) scale(\${scale})\`;
+            });
+            requestAnimationFrame(renderParallax);
+        }
         requestAnimationFrame(renderParallax);
 
-        
-        const cards = document.querySelectorAll('.card'); cards.forEach(card => { card.addEventListener('mousemove', e => { const rect = card.getBoundingClientRect(); const x = e.clientX - rect.left; const y = e.clientY - rect.top; const centerX = rect.width / 2; const centerY = rect.height / 2; const rotateX = ((y - centerY) / centerY) * -8; const rotateY = ((x - centerX) / centerX) * 8; card.style.transform = \`perspective(1000px) rotateX(\${rotateX}deg) rotateY(\${rotateY}deg) scale3d(1.02, 1.02, 1.02)\`; }); card.addEventListener('mouseleave', () => { card.style.transform = \`perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)\`; }); });
+        // ── Hover Tilt / Plates effect on .card ──
+        const cards = document.querySelectorAll('.card');
+        cards.forEach(card => {
+            card.style.transition = 'transform 0.15s cubic-bezier(0.2,0,0,1), box-shadow 0.25s ease';
+            card.addEventListener('mousemove', e => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const cx = rect.width / 2, cy = rect.height / 2;
+                const rotX = ((y - cy) / cy) * -11;
+                const rotY = ((x - cx) / cx) * 11;
+                card.style.transform = \`perspective(880px) rotateX(\${rotX}deg) rotateY(\${rotY}deg) scale3d(1.035,1.035,1.035)\`;
+                card.style.boxShadow = \`\${rotY * -1.5}px \${rotX * 1.5}px 32px rgba(0,0,0,0.22)\`;
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'perspective(880px) rotateX(0deg) rotateY(0deg) scale3d(1,1,1)';
+                card.style.boxShadow = '';
+            });
+        });
         const dot = document.getElementById('c-dot'); const ring = document.getElementById('c-ring'); let mouseX = window.innerWidth / 2, mouseY = window.innerHeight / 2; let ringX = mouseX, ringY = mouseY; let dotX = mouseX, dotY = mouseY;
         window.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; });
         function animateCursor() { dotX += (mouseX - dotX) * 0.5; dotY += (mouseY - dotY) * 0.5; ringX += (mouseX - ringX) * 0.15; ringY += (mouseY - ringY) * 0.15; dot.style.left = \`\${dotX}px\`; dot.style.top = \`\${dotY}px\`; ring.style.left = \`\${ringX}px\`; ring.style.top = \`\${ringY}px\`; requestAnimationFrame(animateCursor); }
@@ -3837,6 +4243,62 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 
+
+// ── Main page hover-tilt (Plates effect) for dashboard cards ──
+(function initMainTilt() {
+  const TILT_SELECTORS = '.subject-card';
+  
+  const applyTilt = (el) => {
+    if (window.matchMedia('(hover: none)').matches) return;
+    // Only apply once
+    if (el.dataset.tiltInit) return;
+    el.dataset.tiltInit = '1';
+
+    el.addEventListener('mousemove', function(e) {
+      const r = this.getBoundingClientRect();
+      const x = e.clientX - r.left, y = e.clientY - r.top;
+      const cx = r.width / 2, cy = r.height / 2;
+      const rotX = ((y - cy) / cy) * -5;
+      const rotY = ((x - cx) / cx) * 5;
+      this.style.transition = 'transform 0.12s cubic-bezier(0.2,0,0,1)';
+      this.style.transform = `perspective(900px) rotateX(${rotX}deg) rotateY(${rotY}deg) translateY(-2px)`;
+      this.style.boxShadow = `${rotY * -1.2}px ${rotX * 1.2}px 24px rgba(0,0,0,0.14)`;
+    });
+    el.addEventListener('mouseleave', function() {
+      this.style.transition = 'transform 0.35s cubic-bezier(0.2,0,0,1), box-shadow 0.35s ease';
+      this.style.transform = 'perspective(900px) rotateX(0deg) rotateY(0deg) translateY(0)';
+      this.style.boxShadow = '';
+    });
+  };
+
+  // Apply only AFTER element is visible (no flicker during fade-in)
+  const waitAndApply = (el) => {
+    if (el.classList.contains('visible')) {
+      applyTilt(el);
+    } else {
+      // Wait for visible class before attaching tilt
+      const mo = new MutationObserver(() => {
+        if (el.classList.contains('visible')) {
+          mo.disconnect();
+          applyTilt(el);
+        }
+      });
+      mo.observe(el, { attributes: true, attributeFilter: ['class'] });
+    }
+  };
+
+  document.querySelectorAll(TILT_SELECTORS).forEach(waitAndApply);
+
+  // Watch for dynamically added cards
+  const tiltObserver = new MutationObserver(mutations => {
+    mutations.forEach(m => m.addedNodes.forEach(node => {
+      if (node.nodeType !== 1) return;
+      if (node.matches && node.matches(TILT_SELECTORS)) waitAndApply(node);
+      node.querySelectorAll && node.querySelectorAll(TILT_SELECTORS).forEach(waitAndApply);
+    }));
+  });
+  tiltObserver.observe(document.body, { childList: true, subtree: true });
+})();
 
 </script>
 <!-- Expanded Chat Fullscreen Modal (Main Page) -->
