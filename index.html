@@ -169,9 +169,9 @@
 
     .float-btn:hover { border-color: var(--accent-blue); background: var(--panel-bg); }
     .btn-small { background: var(--panel-bg); border: 1px solid var(--border); color: var(--text-main); border-radius: 8px; padding: 6px 12px; font-size: 0.75rem; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; gap: 4px; }
-    .btn-small:hover { background: var(--border); box-shadow: 0 2px 8px var(--shadow); }
+    .btn-small:hover { background: var(--border); }
     .login-btn { background: var(--accent-gradient); color: #fff; padding: 12px 24px; border-radius: 30px; font-weight: 800; font-size: 0.95rem; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4); transition: transform 0.2s, box-shadow 0.2s; }
-    .login-btn:hover { transform: scale(1.03); box-shadow: 0 6px 20px rgba(59, 130, 246, 0.6); }
+    .login-btn:hover { transform: scale(1.03); }
 
     /* ----------------- DASHBOARD HERO ----------------- */
     .dashboard-wrapper { max-width: 1200px; margin: 40px auto 40px auto; display: flex; flex-direction: column; align-items: center; gap: 40px; background: var(--card-bg); backdrop-filter: var(--glass-blur); padding: 40px; border-radius: 32px; border: 1px solid var(--border); box-shadow: 0 20px 50px var(--shadow); position: relative; overflow: hidden; }
@@ -205,6 +205,8 @@
     @keyframes modalIn { from { opacity: 0; transform: translateY(20px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
     
     .settings-group { background: var(--panel-bg); padding: 15px; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 5px; }
+    .stab-content { display: flex; flex-direction: column; gap: 12px; }
+    .stab-btn { transition: color 0.2s, border-color 0.2s; }
     .settings-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; font-size: 0.85rem; font-weight: 700; border-bottom: 1px dashed var(--border); }
     .settings-row:last-child { border-bottom: none; }
     .settings-input { background: var(--card-bg); border: 1px solid var(--border); color: var(--text-main); padding: 8px 12px; border-radius: 8px; font-weight: 700; font-family: inherit; }
@@ -221,7 +223,7 @@
     /* ----------------- SUBJECT TRACKER GRID ----------------- */
     .container { max-width: 1400px; margin: 0 auto; padding: 0 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 30px; }
     .subject-card { background: var(--card-bg); backdrop-filter: blur(6px); border-radius: 24px; padding: 25px; box-shadow: 0 8px 20px var(--shadow); border: 1px solid var(--border); transition: transform 0.2s ease-out, box-shadow 0.2s ease-out; display: flex; flex-direction: column; will-change: transform; }
-    .subject-card:hover { box-shadow: 0 12px 30px var(--shadow-hover); transform: translateY(-2px); }
+    .subject-card:hover { transform: translateY(-2px); }
     
     .step-btn { background: var(--panel-bg); border: 1px solid var(--border); color: var(--text-main); border-radius: 8px; width: 28px; height: 28px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; font-size: 1rem; transition: 0.2s; }
     .step-btn:hover { background: var(--accent-blue); color: white; border-color: var(--accent-blue); }
@@ -962,66 +964,57 @@ button:hover:not(.no-hover-effect),
 
 /* ========== 60 FPS PERFORMANCE PACK ========== */
 
-/* 1. সব জায়গায় ব্যাকড্রপ ফিল্টার হালকা বা বন্ধ */
+/* 1. Selective backdrop-filter — only where it adds visible value */
 .dashboard-wrapper, .welcome-intro, .subject-card, .dash-stats-box,
-.chat-container, .modal-card, .top-nav, .floating-login-panel,
+.chat-container, .floating-login-panel,
 .premium-glass-tagline, .float-tool-btn, .float-btn {
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
 }
-
-/* শুধুমাত্র হিরো ও ড্যাশবোর্ডে হালকা ব্লার (ঐচ্ছিক, চাইলে এটাও none দিন) */
+.top-nav { backdrop-filter: blur(12px) !important; -webkit-backdrop-filter: blur(12px) !important; }
+.modal-card { backdrop-filter: blur(8px) !important; -webkit-backdrop-filter: blur(8px) !important; }
 .dashboard-wrapper, .welcome-intro {
-  backdrop-filter: blur(4px) !important;
-  -webkit-backdrop-filter: blur(4px) !important;
+  backdrop-filter: blur(3px) !important;
+  -webkit-backdrop-filter: blur(3px) !important;
 }
 
-/* 2. বক্স-শ্যাডো সহজ করি */
+/* 2. Simpler shadows */
 .dashboard-wrapper, .welcome-intro, .subject-card {
-  box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+  box-shadow: 0 8px 18px rgba(0,0,0,0.08) !important;
 }
 
-/* 3. অপ্রয়োজনীয় অ্যানিমেশন বন্ধ */
-.bg-orb {
-  animation: none !important;
-  opacity: 0.2 !important;
-}
-.vibe-flow, .vibe-warn, .vibe-danger {
-  animation: none !important;
-}
-.target-pulse {
-  animation: none !important;
-}
-.premium-glass-tagline::after {
-  animation: none !important;  /* শিমার বন্ধ */
-}
+/* 3. Static orbs — no animation (saves GPU budget) */
+.bg-orb { animation: none !important; opacity: 0.17 !important; transform: none !important; }
 
+/* 4. Kill expensive shimmer & pulse */
+.target-pulse { animation: none !important; }
+.premium-glass-tagline::after { animation: none !important; }
 
-/* 4. will-change সীমিত করি (ব্রাউজারকে ওভারলোড না করতে) */
-.dynamic-content, .subject-card, .dashboard-wrapper {
-  will-change: auto !important;
-}
-/* fade-up এ will-change দরকার transition চলাকালীন, তাই সরানো হলো */
+/* 5. will-change only during active transition */
+.subject-card, .dashboard-wrapper { will-change: auto !important; }
+.fade-up { will-change: opacity; }
+.fade-up.visible { will-change: auto; }
 
-/* 5. কাস্টম কার্সার পুরোপুরি বন্ধ */
-.cursor-dot-main, .cursor-ring-main {
-  display: none !important;
-}
-body {
-  cursor: auto !important;
-}
+/* 6. Custom cursor off on main page */
+.cursor-dot-main, .cursor-ring-main { display: none !important; }
+body { cursor: auto !important; }
+a, button, .btn-small, .login-btn, .float-btn, .float-tool-btn,
+.sub-icon, .editable-text, .chapter-bar-container,
+.chart-toggle-btn, .card { cursor: pointer !important; }
 
+/* 7. CSS containment for scroll performance */
+.chat-feed { contain: layout style; }
+.subject-card { contain: layout; }
 
-
-/* 7. মোবাইলে আরও আক্রমণাত্মক অপ্টিমাইজেশন */
+/* 8. Mobile — strip remaining expensive filters */
 @media (max-width: 768px) {
-  .dashboard-wrapper, .welcome-intro {
+  .dashboard-wrapper, .welcome-intro, .top-nav, .modal-card {
     backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
     background: var(--card-bg) !important;
   }
-  .sub-icon {
-    display: none; /* ফ্লোটিং আইকন বন্ধ */
-  }
+  .sub-icon { display: none; }
+  .bg-orb { display: none !important; }
 }
 
 
@@ -1172,121 +1165,206 @@ body {
 
 <!-- Master Settings Modal -->
 <div id="masterSettingsModal" class="modal-overlay">
-  <div class="modal-card">
-    <div style="display:flex; justify-content:space-between; align-items:center;">
-      <h2 style="margin:0;">⚙️ Master Settings</h2>
+  <div class="modal-card" style="max-width:460px;padding:0;overflow:hidden;border-radius:24px;gap:0;">
+    <!-- Header -->
+    <div style="padding:18px 20px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:var(--card-bg);z-index:10;backdrop-filter:blur(12px);">
+      <h2 style="margin:0;font-size:1.1rem;">⚙️ Settings</h2>
       <button class="btn-small" onclick="toggleElement('masterSettingsModal')">✖</button>
     </div>
-    <div class="settings-group">
-      <h4 style="margin:0 0 10px 0; color:var(--accent-blue);">🎨 Progress Bar Colors</h4>
-      <div class="settings-row"><span>✅ Mastered (100%)</span> <input type="color" id="col_done" class="color-picker" onchange="updateGlobalColors()"></div>
-      <div class="settings-row"><span>⏳ In Progress (>0%)</span> <input type="color" id="col_run" class="color-picker" onchange="updateGlobalColors()"></div>
-      <div class="settings-row"><span>❌ Pending (0%)</span> <input type="color" id="col_pend" class="color-picker" onchange="updateGlobalColors()"></div>
-      <button class="btn-small" style="width:100%; margin-top:10px;" onclick="resetGlobalColors()">↺ Reset Colors</button>
+
+    <!-- Tab bar -->
+    <div style="display:flex;gap:0;background:var(--panel-bg);border-bottom:1px solid var(--border);overflow-x:auto;">
+      <button class="stab-btn stab-active" onclick="switchSettingsTab('appearance',this)" style="flex:1;min-width:60px;padding:10px 4px;border:none;background:transparent;font-size:0.72rem;font-weight:700;color:var(--accent-blue);cursor:pointer;border-bottom:2px solid var(--accent-blue);font-family:inherit;white-space:nowrap;">🎨 Look</button>
+      <button class="stab-btn" onclick="switchSettingsTab('animation',this)" style="flex:1;min-width:60px;padding:10px 4px;border:none;background:transparent;font-size:0.72rem;font-weight:700;color:var(--text-sub);cursor:pointer;border-bottom:2px solid transparent;font-family:inherit;white-space:nowrap;">🎞️ Motion</button>
+      <button class="stab-btn" onclick="switchSettingsTab('blur',this)" style="flex:1;min-width:60px;padding:10px 4px;border:none;background:transparent;font-size:0.72rem;font-weight:700;color:var(--text-sub);cursor:pointer;border-bottom:2px solid transparent;font-family:inherit;white-space:nowrap;">🌫️ Blur</button>
+      <button class="stab-btn" onclick="switchSettingsTab('data',this)" style="flex:1;min-width:60px;padding:10px 4px;border:none;background:transparent;font-size:0.72rem;font-weight:700;color:var(--text-sub);cursor:pointer;border-bottom:2px solid transparent;font-family:inherit;white-space:nowrap;">📦 Data</button>
+      <button class="stab-btn" onclick="switchSettingsTab('about',this)" style="flex:1;min-width:60px;padding:10px 4px;border:none;background:transparent;font-size:0.72rem;font-weight:700;color:var(--text-sub);cursor:pointer;border-bottom:2px solid transparent;font-family:inherit;white-space:nowrap;">👨‍💻 About</button>
     </div>
 
-          <!-- Data Import / Export Section -->
-          <div class="settings-group">
-            <h4 style="margin:0 0 10px 0; color:var(--accent-blue);">📦 Backup & Restore</h4>
-            <div style="display: flex; gap: 10px; justify-content: space-around;">
-              <button class="btn-small" style="flex:1; padding: 10px;" onclick="exportAllData()">📤 Export Data</button>
-              <button class="btn-small" style="flex:1; padding: 10px;" onclick="document.getElementById('importFileInput').click()">📥 Import Data</button>
+    <!-- Scrollable content -->
+    <div style="overflow-y:auto;max-height:72vh;padding:16px;display:flex;flex-direction:column;gap:12px;">
+
+      <!-- ═══════════ TAB: LOOK ═══════════ -->
+      <div id="stab-appearance" class="stab-content">
+
+        <!-- Progress Bar Colors -->
+        <div class="settings-group">
+          <h4 style="margin:0 0 10px 0;color:var(--accent-blue);">🎨 Progress Bar Colors</h4>
+          <div class="settings-row"><span>✅ Mastered (100%)</span><input type="color" id="col_done" class="color-picker" onchange="updateGlobalColors()"></div>
+          <div class="settings-row"><span>⏳ In Progress (&gt;0%)</span><input type="color" id="col_run" class="color-picker" onchange="updateGlobalColors()"></div>
+          <div class="settings-row" style="border:none;"><span>❌ Pending (0%)</span><input type="color" id="col_pend" class="color-picker" onchange="updateGlobalColors()"></div>
+          <button class="btn-small" style="width:100%;margin-top:10px;" onclick="resetGlobalColors()">↺ Reset Colors</button>
+        </div>
+
+        <!-- Chapter Bar Gradient -->
+        <div class="settings-group">
+          <h4 style="margin:0 0 10px 0;color:var(--accent-blue);">📊 Chapter Bar Style</h4>
+          <div class="settings-row"><span>Gradient Fill</span><input type="checkbox" id="tgl_gradient_bars" onchange="updateUIToggles()" style="width:18px;height:18px;cursor:pointer;"></div>
+          <div class="settings-row"><span>Start Color</span><input type="color" id="cbar_start" class="color-picker" onchange="updateChapterBarColors()"></div>
+          <div class="settings-row"><span>Mid Color</span><input type="color" id="cbar_mid" class="color-picker" onchange="updateChapterBarColors()"></div>
+          <div class="settings-row" style="border:none;"><span>End Color</span><input type="color" id="cbar_end" class="color-picker" onchange="updateChapterBarColors()"></div>
+        </div>
+
+        <!-- UI Toggles -->
+        <div class="settings-group">
+          <h4 style="margin:0 0 10px 0;color:var(--accent-blue);">✨ UI Elements</h4>
+          <div class="settings-row"><span>Ambient Hero Orbs</span><input type="checkbox" id="tgl_orbs" onchange="updateUIToggles()" style="width:18px;height:18px;cursor:pointer;"></div>
+          <div class="settings-row"><span>Subject Vibe Animations</span><input type="checkbox" id="tgl_vibes" onchange="updateUIToggles()" style="width:18px;height:18px;cursor:pointer;"></div>
+          <div class="settings-row" style="border:none;"><span>⏱️ Show ETA Badge</span><input type="checkbox" id="etaSettingToggle" onchange="toggleEtaDisplay(this.checked)" style="width:18px;height:18px;cursor:pointer;" checked></div>
+        </div>
+
+        <!-- View -->
+        <div class="settings-group">
+          <h4 style="margin:0 0 10px 0;color:var(--accent-blue);">🔢 Data View</h4>
+          <button class="btn-small" style="width:100%;padding:10px;" onclick="toggleGlobalStyle()">🔄 Toggle Quantity / Percent</button>
+        </div>
+
+      </div><!-- /stab-appearance -->
+
+      <!-- ═══════════ TAB: MOTION ═══════════ -->
+      <div id="stab-animation" class="stab-content" style="display:none;">
+
+        <!-- Mode selector -->
+        <div class="settings-group">
+          <h4 style="margin:0 0 10px 0;color:var(--accent-blue);">🎞️ Scroll Appear Mode</h4>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px;">
+            <button id="filter_opacity_btn" class="btn-small smode-btn" onclick="setAnimationFilter('opacity')" style="padding:9px 6px;font-size:0.78rem;">✨ Opacity</button>
+            <button id="filter_blur_btn" class="btn-small smode-btn" onclick="setAnimationFilter('blur')" style="padding:9px 6px;font-size:0.78rem;">🌫️ Blur+Fade</button>
+            <button id="filter_slide_btn" class="btn-small smode-btn" onclick="setAnimationFilter('slide')" style="padding:9px 6px;font-size:0.78rem;">⬆️ Slide Up</button>
+            <button id="filter_scale_btn" class="btn-small smode-btn" onclick="setAnimationFilter('scale')" style="padding:9px 6px;font-size:0.78rem;">🔍 Scale In</button>
+            <button id="filter_off_btn" class="btn-small smode-btn" onclick="setAnimationFilter('off')" style="padding:9px 6px;font-size:0.78rem;grid-column:1/-1;">⚡ Instant (Off)</button>
+          </div>
+
+          <!-- Controls shown only when mode != off -->
+          <div id="animControls" style="display:flex;flex-direction:column;gap:8px;border-top:1px dashed var(--border);padding-top:10px;margin-top:4px;">
+            <div class="settings-row" style="border:none;padding:0;">
+              <span style="font-size:0.82rem;">Duration</span>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <input type="range" min="100" max="1200" value="650" step="50" id="animDurationSlider" oninput="updateAnimDuration(this.value)" style="width:90px;">
+                <span id="animDurationVal" style="font-size:0.78rem;font-weight:800;min-width:42px;color:var(--accent-blue);">650ms</span>
+              </div>
             </div>
-            <input type="file" id="importFileInput" accept=".json,application/json" style="display: none;" onchange="importAllData(event)">
-            <p style="font-size:0.75rem; color:var(--text-sub); text-align:center; margin:10px 0 0 0;">Export saves all progress. Import replaces current data.</p>
+            <div class="settings-row" style="border:none;padding:0;">
+              <span style="font-size:0.82rem;">Easing</span>
+              <select id="animEaseSelect" class="settings-input" style="width:148px;font-size:0.76rem;" onchange="updateAnimEase(this.value)">
+                <option value="cubic-bezier(0.16,1,0.3,1)">🌊 Spring</option>
+                <option value="cubic-bezier(0.22,1,0.36,1)">🌙 Silky Dream</option>
+                <option value="cubic-bezier(0.25,0.46,0.45,0.94)">🍃 Gentle Float</option>
+                <option value="cubic-bezier(0.34,1.56,0.64,1)">🎈 Bouncy</option>
+                <option value="cubic-bezier(0.0,0.0,0.2,1)">⚡ Snap In</option>
+                <option value="cubic-bezier(0.87,0,0.13,1)">🔪 Sharp</option>
+                <option value="ease-in-out">↔️ Ease In-Out</option>
+                <option value="linear">📏 Linear</option>
+              </select>
+            </div>
+            <div class="settings-row" style="border:none;padding:0;">
+              <span style="font-size:0.82rem;">Stagger Delay</span>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <input type="range" min="0" max="300" value="0" step="20" id="animDelaySlider" oninput="updateAnimDelay(this.value)" style="width:90px;">
+                <span id="animDelayVal" style="font-size:0.78rem;font-weight:800;min-width:42px;color:var(--accent-blue);">0ms</span>
+              </div>
+            </div>
+          </div>
+          <p style="font-size:0.7rem;color:var(--text-sub);margin-top:8px;">How elements appear as you scroll down the page.</p>
+        </div>
+
+      </div><!-- /stab-animation -->
+
+      <!-- ═══════════ TAB: BLUR ═══════════ -->
+      <div id="stab-blur" class="stab-content" style="display:none;">
+
+        <!-- Blur Trigger Mode -->
+        <div class="settings-group">
+          <h4 style="margin:0 0 10px 0;color:var(--accent-blue);">⚡ Blur Trigger</h4>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px;">
+            <button class="btn-small btrig-btn" onclick="setBlurTrigger('scroll')" id="btrig_scroll" style="padding:9px 6px;font-size:0.78rem;">📜 On Scroll</button>
+            <button class="btn-small btrig-btn" onclick="setBlurTrigger('hover')" id="btrig_hover" style="padding:9px 6px;font-size:0.78rem;">🖱️ On Hover</button>
+            <button class="btn-small btrig-btn" onclick="setBlurTrigger('always')" id="btrig_always" style="padding:9px 6px;font-size:0.78rem;">🔁 Always On</button>
+            <button class="btn-small btrig-btn" onclick="setBlurTrigger('focus')" id="btrig_focus" style="padding:9px 6px;font-size:0.78rem;">🎯 On Focus</button>
+            <button class="btn-small btrig-btn" onclick="setBlurTrigger('night')" id="btrig_night" style="padding:9px 6px;font-size:0.78rem;">🌙 Night Only</button>
+            <button class="btn-small btrig-btn" onclick="setBlurTrigger('off')" id="btrig_off" style="padding:9px 6px;font-size:0.78rem;">🚫 Off</button>
+          </div>
+          <p id="btrig_desc" style="font-size:0.7rem;color:var(--text-sub);margin:0;">Select when backdrop blur activates.</p>
+        </div>
+
+        <!-- Blur controls — hidden when trigger=off -->
+        <div id="blurControls" class="settings-group">
+          <h4 style="margin:0 0 10px 0;color:var(--accent-blue);">🎛️ Intensity</h4>
+          <div class="settings-row">
+            <span style="font-size:0.82rem;">Blur Amount</span>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <input type="range" min="0" max="30" value="8" step="1" id="blurIntensitySlider" oninput="updateBlurIntensity(this.value)" style="width:90px;">
+              <span id="blurIntensityVal" style="font-size:0.78rem;font-weight:800;min-width:32px;color:var(--accent-blue);">8px</span>
+            </div>
+          </div>
+          <div class="settings-row">
+            <span style="font-size:0.82rem;">Card Opacity</span>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <input type="range" min="40" max="100" value="75" step="5" id="cardOpacitySlider" oninput="updateCardOpacity(this.value)" style="width:90px;">
+              <span id="cardOpacityVal" style="font-size:0.78rem;font-weight:800;min-width:32px;color:var(--accent-blue);">75%</span>
+            </div>
           </div>
 
-
-                  <!-- About the Creator (Clickable Link) -->
-                  <div class="settings-group" style="text-align: center; cursor: pointer;" onclick="openCreatorPortfolio(); toggleElement('masterSettingsModal');">
-                    <span style="color: var(--accent-blue); font-weight: 700; font-size: 1rem; transition: all 0.2s;">👨‍💻 About the Creator</span>
-                  </div>
-
-
-
-
-
-
-                          <div class="settings-group">
-                          <h4 style="margin:0 0 10px 0; color:var(--accent-blue);">✨ UI Preferences</h4>
-                          <div class="settings-row"><span>Ambient Hero Orbs</span> <input type="checkbox" id="tgl_orbs" onchange="updateUIToggles()" style="width:18px;height:18px;cursor:pointer;"></div>
-                          <div class="settings-row"><span>Subject Vibe Animations</span> <input type="checkbox" id="tgl_vibes" onchange="updateUIToggles()" style="width:18px;height:18px;cursor:pointer;"></div>
-                          <div class="settings-row"><span>Chapter Bar Fill</span> <input type="checkbox" id="tgl_gradient_bars" onchange="updateUIToggles()" style="width:18px;height:18px;cursor:pointer;"></div>
-                          <div class="settings-row"><span>Bar Start Color</span> <input type="color" id="cbar_start" class="color-picker" onchange="updateChapterBarColors()"></div>
-
-                          <!-- ✨ NEW: Animation Filter Toggles -->
-                          <div class="settings-row" style="flex-direction:column; align-items:flex-start; gap:8px; border:none; margin-top:6px;">
-                            <span style="font-weight:800; font-size:0.85rem;">🎞️ Appear/Disappear Filter</span>
-                            <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                              <button id="filter_opacity_btn" class="btn-small" onclick="setAnimationFilter('opacity')" style="flex:1; padding:8px 6px;">
-                                ✨ Opacity Only
-                              </button>
-                              <button id="filter_blur_btn" class="btn-small" onclick="setAnimationFilter('blur')" style="flex:1; padding:8px 6px;">
-                                🌫️ Blur + Opacity
-                              </button>
-                              <button id="filter_off_btn" class="btn-small" onclick="setAnimationFilter('off')" style="flex:1; padding:8px 6px;">
-                                ⚡ Off (Instant)
-                              </button>
-                            </div>
-                            <p style="font-size:0.72rem; color:var(--text-sub); margin:0;">Controls how elements appear when scrolling.</p>
-                          </div>
-
-                          <!-- 🌫️ NEW: Blur Intensity & Trigger Controls -->
-                          <div class="settings-row" style="flex-direction:column;align-items:flex-start;gap:10px;border:none;margin-top:4px;padding-top:10px;border-top:1px dashed var(--border);">
-                            <span style="font-weight:800;font-size:0.85rem;">🌫️ Blur Intensity & Trigger</span>
-                            <div class="settings-row" style="width:100%;border:none;padding:0;">
-                              <span style="font-size:0.82rem;">Blur Amount</span>
-                              <div style="display:flex;align-items:center;gap:8px;">
-                                <input type="range" min="0" max="30" value="8" step="2" id="blurIntensitySlider" oninput="updateBlurIntensity(this.value)" style="width:90px;">
-                                <span id="blurIntensityVal" style="font-size:0.78rem;font-weight:800;min-width:32px;color:var(--accent-blue);">8px</span>
-                              </div>
-                            </div>
-                            <div class="settings-row" style="width:100%;border:none;padding:0;">
-                              <span style="font-size:0.82rem;">Card Opacity</span>
-                              <div style="display:flex;align-items:center;gap:8px;">
-                                <input type="range" min="40" max="100" value="75" step="5" id="cardOpacitySlider" oninput="updateCardOpacity(this.value)" style="width:90px;">
-                                <span id="cardOpacityVal" style="font-size:0.78rem;font-weight:800;min-width:32px;color:var(--accent-blue);">75%</span>
-                              </div>
-                            </div>
-                            <div class="settings-row" style="width:100%;border:none;padding:0;">
-                              <span style="font-size:0.82rem;">Blur Trigger</span>
-                              <select id="blurTriggerSelect" class="settings-input" style="width:130px;font-size:0.78rem;" onchange="setBlurTrigger(this.value)">
-                                <option value="scroll">On Scroll</option>
-                                <option value="hover">On Hover</option>
-                                <option value="always">Always On</option>
-                                <option value="focus">On Focus</option>
-                                <option value="night">Night Mode</option>
-                                <option value="reduced">Low Motion</option>
-                              </select>
-                            </div>
-                            <div class="settings-row" style="width:100%;border:none;padding:0;">
-                              <span style="font-size:0.82rem;">Nav Blur</span>
-                              <input type="checkbox" id="tgl_nav_blur" onchange="updateNavBlur(this.checked)" style="width:18px;height:18px;cursor:pointer;" checked>
-                            </div>
-                            <div class="settings-row" style="width:100%;border:none;padding:0;">
-                              <span style="font-size:0.82rem;">Card Glass Effect</span>
-                              <input type="checkbox" id="tgl_card_glass" onchange="updateCardGlass(this.checked)" style="width:18px;height:18px;cursor:pointer;" checked>
-                            </div>
-                            <p style="font-size:0.72rem;color:var(--text-sub);margin:0;">Controls backdrop blur across the entire UI.</p>
-                          </div>
-                          <div class="settings-row"><span>Bar Mid Color</span> <input type="color" id="cbar_mid" class="color-picker" onchange="updateChapterBarColors()"></div>
-                          <div class="settings-row" style="border:none;"><span>Bar End Color</span> <input type="color" id="cbar_end" class="color-picker" onchange="updateChapterBarColors()"></div>
-                        </div>
-
-
-          <button class="btn-small" style="width:100%; padding: 10px;" onclick="toggleGlobalStyle()">🔄 Toggle Global Quantity/Percent View</button>
-          <button class="btn-small" style="width:100%; margin-top:10px; color:var(--color-pending); border-color:var(--color-pending); padding: 10px;" onclick="resetGraphLogs()">⚠️ Wipe ALL Global Study Data</button>
+          <!-- Blur Easing — shown only when trigger=hover or scroll -->
+          <div id="blurEasingRow" class="settings-row" style="border:none;">
+            <span style="font-size:0.82rem;">Blur Easing</span>
+            <select id="blurEaseSelect" class="settings-input" style="width:148px;font-size:0.76rem;" onchange="updateBlurEase(this.value)">
+              <option value="0.4s cubic-bezier(0.22,1,0.36,1)">🌙 Silky Dream</option>
+              <option value="0.6s cubic-bezier(0.16,1,0.3,1)">🌊 Spring Flow</option>
+              <option value="0.5s cubic-bezier(0.25,0.46,0.45,0.94)">🍃 Gentle Float</option>
+              <option value="0.3s ease-out">⚡ Quick Snap</option>
+              <option value="0.8s ease-in-out">🌀 Deep Drift</option>
+              <option value="1.2s cubic-bezier(0.16,1,0.3,1)">🌌 Ultra Dreamy</option>
+              <option value="0.2s linear">📏 Linear</option>
+            </select>
           </div>
+        </div>
 
+        <!-- Glass toggles -->
+        <div class="settings-group">
+          <h4 style="margin:0 0 10px 0;color:var(--accent-blue);">🪟 Glass Elements</h4>
+          <div class="settings-row"><span style="font-size:0.82rem;">Nav Bar Blur</span><input type="checkbox" id="tgl_nav_blur" onchange="updateNavBlur(this.checked)" style="width:18px;height:18px;cursor:pointer;" checked></div>
+          <div class="settings-row" style="border:none;"><span style="font-size:0.82rem;">Card Glass Effect</span><input type="checkbox" id="tgl_card_glass" onchange="updateCardGlass(this.checked)" style="width:18px;height:18px;cursor:pointer;" checked></div>
+        </div>
 
+      </div><!-- /stab-blur -->
 
+      <!-- ═══════════ TAB: DATA ═══════════ -->
+      <div id="stab-data" class="stab-content" style="display:none;">
 
+        <div class="settings-group">
+          <h4 style="margin:0 0 10px 0;color:var(--accent-blue);">📦 Backup & Restore</h4>
+          <div style="display:flex;gap:10px;">
+            <button class="btn-small" style="flex:1;padding:10px;" onclick="exportAllData()">📤 Export</button>
+            <button class="btn-small" style="flex:1;padding:10px;" onclick="document.getElementById('importFileInput').click()">📥 Import</button>
+          </div>
+          <input type="file" id="importFileInput" accept=".json,application/json" style="display:none;" onchange="importAllData(event)">
+          <p style="font-size:0.72rem;color:var(--text-sub);text-align:center;margin:10px 0 0 0;">Export saves all progress. Import replaces current data.</p>
+        </div>
 
+        <div class="settings-group">
+          <h4 style="margin:0 0 10px 0;color:var(--color-pending);">⚠️ Danger Zone</h4>
+          <button class="btn-small" style="width:100%;padding:10px;color:var(--color-pending);border-color:var(--color-pending);" onclick="resetGraphLogs()">⚠️ Wipe ALL Global Study Data</button>
+          <p style="font-size:0.7rem;color:var(--text-sub);margin-top:8px;text-align:center;">This cannot be undone.</p>
+        </div>
 
+      </div><!-- /stab-data -->
 
+      <!-- ═══════════ TAB: ABOUT ═══════════ -->
+      <div id="stab-about" class="stab-content" style="display:none;">
+        <div class="settings-group" style="text-align:center;cursor:pointer;" onclick="openCreatorPortfolio();toggleElement('masterSettingsModal');">
+          <div style="font-size:2rem;margin-bottom:8px;">👨‍💻</div>
+          <div style="font-weight:800;font-size:1rem;color:var(--accent-blue);margin-bottom:4px;">Tanmoy Sarker</div>
+          <div style="font-size:0.8rem;color:var(--text-sub);margin-bottom:12px;">Developer · Designer · Creator</div>
+          <div class="btn-small" style="display:inline-block;padding:8px 20px;">View Portfolio →</div>
+        </div>
+        <div class="settings-group" style="text-align:center;">
+          <div style="font-size:0.78rem;color:var(--text-sub);line-height:1.7;">HSC Study OS<br><strong style="color:var(--text-main);">Premium Edition</strong><br>Built with 💜 for HSC students</div>
+        </div>
+      </div><!-- /stab-about -->
 
-
-
+    </div><!-- /scrollable -->
+  </div>
 </div>
 
 
@@ -1776,7 +1854,7 @@ body {
 
 <!-- About the Creator Box (Click to open Portfolio) -->
 <div class="fade-up" style="max-width: 600px; margin: 20px auto 60px auto; cursor: pointer;" onclick="openCreatorPortfolio()">
-  <div style="background: var(--card-bg); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid var(--border); border-radius: 60px; padding: 20px 30px; display: flex; align-items: center; justify-content: center; gap: 15px; box-shadow: 0 10px 30px var(--shadow); transition: all 0.3s ease;" onmouseover="this.style.transform='scale(1.02)'; this.style.boxShadow='0 20px 40px var(--shadow-hover)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 10px 30px var(--shadow)';">
+  <div style="background: var(--card-bg); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid var(--border); border-radius: 60px; padding: 20px 30px; display: flex; align-items: center; justify-content: center; gap: 15px; box-shadow: 0 10px 30px var(--shadow); transition: all 0.3s ease;" onmouseover="this.style.transform='scale(1.02)'; this.style.boxShadow='none';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 10px 30px var(--shadow)';">
     <span style="font-size: 2.5rem;">👨‍💻</span>
     <div style="text-align: left;">
       <h3 style="margin:0 0 5px 0; font-size: 1.3rem; color: var(--accent-blue);">About the Creator</h3>
@@ -2062,31 +2140,68 @@ let sessionDuration = 25 * 60;      // store current session length
         userSettings.uiConfigs.animFilter = mode;
         applyAnimationFilter(mode);
         // Highlight active button
-        ['opacity','blur','off'].forEach(m => {
-          const btn = document.getElementById(`filter_${m}_btn`);
-          if(btn) btn.style.background = (m === mode) ? 'var(--accent-blue)' : '';
-          if(btn) btn.style.color = (m === mode) ? '#fff' : '';
-          if(btn) btn.style.borderColor = (m === mode) ? 'var(--accent-blue)' : '';
-        });
+        document.querySelectorAll('.smode-btn').forEach(b => { b.style.background=''; b.style.color=''; b.style.borderColor=''; });
+        const active = document.getElementById(`filter_${mode}_btn`);
+        if(active) { active.style.background='var(--accent-blue)'; active.style.color='#fff'; active.style.borderColor='var(--accent-blue)'; }
+        // Show/hide controls
+        const ctrl = document.getElementById('animControls');
+        if(ctrl) ctrl.style.display = mode === 'off' ? 'none' : 'flex';
         silentCloudSave();
+      };
+
+      // Global anim params (with defaults)
+      let _animDur = 650, _animEase = 'cubic-bezier(0.16,1,0.3,1)', _animDelay = 0;
+
+      window.updateAnimDuration = (val) => {
+        _animDur = parseInt(val);
+        document.getElementById('animDurationVal').textContent = val + 'ms';
+        if(!userSettings.uiConfigs) userSettings.uiConfigs = {};
+        userSettings.uiConfigs.animDur = _animDur;
+        applyAnimationFilter(userSettings.uiConfigs.animFilter || 'opacity');
+        silentCloudSave();
+      };
+      window.updateAnimEase = (val) => {
+        _animEase = val;
+        if(!userSettings.uiConfigs) userSettings.uiConfigs = {};
+        userSettings.uiConfigs.animEase = val;
+        applyAnimationFilter(userSettings.uiConfigs.animFilter || 'opacity');
+        silentCloudSave();
+      };
+      window.updateAnimDelay = (val) => {
+        _animDelay = parseInt(val);
+        document.getElementById('animDelayVal').textContent = val + 'ms';
+        if(!userSettings.uiConfigs) userSettings.uiConfigs = {};
+        userSettings.uiConfigs.animDelay = _animDelay;
+        applyAnimDelayToElements();
+        silentCloudSave();
+      };
+      const applyAnimDelayToElements = () => {
+        document.querySelectorAll('.fade-up').forEach((el, i) => {
+          el.style.transitionDelay = _animDelay > 0 ? (i * _animDelay * 0.3) + 'ms' : '0ms';
+        });
       };
 
       const applyAnimationFilter = (mode) => {
         const styleId = 'anim-filter-style';
         let el = document.getElementById(styleId);
         if(!el) { el = document.createElement('style'); el.id = styleId; document.head.appendChild(el); }
+        const dur = _animDur + 'ms', ease = _animEase;
         if(mode === 'blur') {
-          el.textContent = `.fade-up { opacity: 0; filter: blur(6px); transition: opacity 0.75s cubic-bezier(0.16,1,0.3,1), filter 0.75s ease; will-change: opacity; } .fade-up.visible { opacity: 1; filter: blur(0px); }`;
+          el.textContent = `.fade-up { opacity: 0; filter: blur(8px); transition: opacity ${dur} ${ease}, filter ${dur} ${ease}; } .fade-up.visible { opacity: 1; filter: blur(0px); }`;
+        } else if(mode === 'slide') {
+          el.textContent = `.fade-up { opacity: 0; transform: translateY(28px); transition: opacity ${dur} ${ease}, transform ${dur} ${ease}; } .fade-up.visible { opacity: 1; transform: translateY(0); }`;
+        } else if(mode === 'scale') {
+          el.textContent = `.fade-up { opacity: 0; transform: scale(0.94); transition: opacity ${dur} ${ease}, transform ${dur} ${ease}; } .fade-up.visible { opacity: 1; transform: scale(1); }`;
         } else if(mode === 'off') {
-          el.textContent = `.fade-up { opacity: 1 !important; filter: none !important; transition: none !important; }`;
+          el.textContent = `.fade-up { opacity: 1 !important; filter: none !important; transform: none !important; transition: none !important; }`;
         } else {
-          // default: opacity only — NO transform (prevents tilt/flicker conflict)
-          el.textContent = `.fade-up { opacity: 0; filter: none; transition: opacity 0.65s cubic-bezier(0.16,1,0.3,1); will-change: opacity; } .fade-up.visible { opacity: 1; }`;
+          // opacity (default)
+          el.textContent = `.fade-up { opacity: 0; filter: none; transition: opacity ${dur} ${ease}; } .fade-up.visible { opacity: 1; }`;
         }
-        // Re-trigger visible elements
         document.querySelectorAll('.fade-up').forEach(el => {
-          if(mode === 'off') { el.classList.add('visible'); }
+          if(mode === 'off') el.classList.add('visible');
         });
+        applyAnimDelayToElements();
       };
 
 
@@ -2154,13 +2269,32 @@ let sessionDuration = 25 * 60;      // store current session length
     
     updateNavProfile();
     
-    // Restore animation filter button state
+    // Restore animation filter
     const animFilter = userSettings.uiConfigs.animFilter || 'opacity';
     applyAnimationFilter(animFilter);
-    ['opacity','blur','off'].forEach(m => {
-      const btn = document.getElementById(`filter_${m}_btn`);
-      if(btn) { btn.style.background = (m === animFilter) ? 'var(--accent-blue)' : ''; btn.style.color = (m === animFilter) ? '#fff' : ''; btn.style.borderColor = (m === animFilter) ? 'var(--accent-blue)' : ''; }
-    });
+    document.querySelectorAll('.smode-btn').forEach(b => { b.style.background=''; b.style.color=''; b.style.borderColor=''; });
+    const activeAnimBtn = document.getElementById(`filter_${animFilter}_btn`);
+    if(activeAnimBtn) { activeAnimBtn.style.background='var(--accent-blue)'; activeAnimBtn.style.color='#fff'; activeAnimBtn.style.borderColor='var(--accent-blue)'; }
+    const animCtrl = document.getElementById('animControls');
+    if(animCtrl) animCtrl.style.display = animFilter === 'off' ? 'none' : 'flex';
+    // Restore duration/ease/delay
+    if(userSettings.uiConfigs.animDur) {
+      _animDur = userSettings.uiConfigs.animDur;
+      const sl = document.getElementById('animDurationSlider'); if(sl) sl.value = _animDur;
+      const vl = document.getElementById('animDurationVal'); if(vl) vl.textContent = _animDur + 'ms';
+    }
+    if(userSettings.uiConfigs.animEase) {
+      _animEase = userSettings.uiConfigs.animEase;
+      const sel = document.getElementById('animEaseSelect'); if(sel) sel.value = _animEase;
+    }
+    if(userSettings.uiConfigs.animDelay !== undefined) {
+      _animDelay = userSettings.uiConfigs.animDelay;
+      const sl = document.getElementById('animDelaySlider'); if(sl) sl.value = _animDelay;
+      const vl = document.getElementById('animDelayVal'); if(vl) vl.textContent = _animDelay + 'ms';
+    }
+    // Sync ETA setting toggle
+    const etaStg = document.getElementById('etaSettingToggle');
+    if(etaStg) etaStg.checked = userSettings.uiConfigs.etaOn !== false;
   };
 
   window.updateGlobalColors = () => { if(adminMode) return; userSettings.barColors.done = document.getElementById('col_done').value; userSettings.barColors.running = document.getElementById('col_run').value; userSettings.barColors.pending = document.getElementById('col_pend').value; applyCustomSettings(); renderUI(); renderHeroDashboard(); renderChart(); silentCloudSave(); };
@@ -3456,102 +3590,127 @@ updateStopwatchDisplay();
     }
   };
 
-  // Restore blur/opacity/ETA settings on load
-  const restoreBlurSettings = () => {
-    if(!userSettings.uiConfigs) return;
-    const ui = userSettings.uiConfigs;
-    if(ui.blurIntensity !== undefined) {
-      const sl = document.getElementById('blurIntensitySlider');
-      const vl = document.getElementById('blurIntensityVal');
-      if(sl) sl.value = ui.blurIntensity;
-      if(vl) vl.textContent = ui.blurIntensity + 'px';
-      document.documentElement.style.setProperty('--glass-blur', `blur(${ui.blurIntensity}px)`);
-    }
-    if(ui.cardOpacity !== undefined) {
-      const sl = document.getElementById('cardOpacitySlider');
-      const vl = document.getElementById('cardOpacityVal');
-      if(sl) sl.value = ui.cardOpacity;
-      if(vl) vl.textContent = ui.cardOpacity + '%';
-    }
-    if(ui.blurTrigger) {
-      const sel = document.getElementById('blurTriggerSelect');
-      if(sel) sel.value = ui.blurTrigger;
-      setBlurTrigger(ui.blurTrigger);
-    }
-    if(ui.navBlur === false) { const cb = document.getElementById('tgl_nav_blur'); if(cb) { cb.checked = false; updateNavBlur(false); } }
-    if(ui.cardGlass === false) { const cb = document.getElementById('tgl_card_glass'); if(cb) { cb.checked = false; updateCardGlass(false); } }
-    if(ui.etaOn === false) { const cb = document.getElementById('etaToggle'); if(cb) { cb.checked = false; toggleEtaDisplay(false); } }
+  // ===== SETTINGS TAB SWITCHER =====
+  window.switchSettingsTab = (tab, btn) => {
+    document.querySelectorAll('.stab-content').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('.stab-btn').forEach(b => {
+      b.style.color = 'var(--text-sub)';
+      b.style.borderBottomColor = 'transparent';
+    });
+    const panel = document.getElementById('stab-' + tab);
+    if(panel) panel.style.display = 'flex';
+    // flex so settings-group stacks properly
+    if(panel) panel.style.flexDirection = 'column';
+    if(panel) panel.style.gap = '12px';
+    if(btn) { btn.style.color = 'var(--accent-blue)'; btn.style.borderBottomColor = 'var(--accent-blue)'; }
   };
-  setTimeout(restoreBlurSettings, 1200);
 
   // ===== ETA TOGGLE =====
   window.toggleEtaDisplay = (checked) => {
-    const row = document.getElementById('etaRow');
     const badge = document.getElementById('etaBadge');
     const track = document.getElementById('etaTrack');
     const thumb = document.getElementById('etaThumb');
+    const stgCb = document.getElementById('etaSettingToggle');
     if(badge) badge.style.display = checked ? 'flex' : 'none';
     if(track) track.style.background = checked ? 'var(--accent-blue)' : 'var(--border)';
     if(thumb) thumb.style.left = checked ? '21px' : '3px';
+    if(stgCb) stgCb.checked = checked;
     if(!userSettings.uiConfigs) userSettings.uiConfigs = {};
     userSettings.uiConfigs.etaOn = checked;
     silentCloudSave();
   };
 
   const updateETABadge = () => {
-    if(!userSettings.missionEnd) return;
-    const now = new Date();
-    const end = new Date(userSettings.missionEnd);
+    const etaEl = document.getElementById('etaText');
+    if(!etaEl) return;
+    if(!userSettings.missionEnd) { etaEl.textContent = 'ETA: Set mission dates'; return; }
+    const now = new Date(), end = new Date(userSettings.missionEnd);
     const diffMs = end - now;
-    if(diffMs < 0) { document.getElementById('etaText').textContent = 'ETA: Mission Complete!'; return; }
-    const days = Math.floor(diffMs / (1000*60*60*24));
-    const hrs = Math.floor((diffMs % (1000*60*60*24)) / (1000*60*60));
-    document.getElementById('etaText').textContent = days > 0 ? `ETA: ${days}d ${hrs}h left` : `ETA: ${hrs}h left`;
+    if(diffMs < 0) { etaEl.textContent = 'ETA: Mission Complete! 🎉'; return; }
+    const days = Math.floor(diffMs / 86400000);
+    const hrs = Math.floor((diffMs % 86400000) / 3600000);
+    etaEl.textContent = days > 0 ? `ETA: ${days}d ${hrs}h left` : `ETA: ${hrs}h left`;
   };
   setTimeout(updateETABadge, 800);
 
   // ===== BLUR / OPACITY CONTROLS =====
   window.updateBlurIntensity = (val) => {
-    document.getElementById('blurIntensityVal').textContent = val + 'px';
+    const vl = document.getElementById('blurIntensityVal');
+    if(vl) vl.textContent = val + 'px';
     document.documentElement.style.setProperty('--glass-blur', `blur(${val}px)`);
     if(!userSettings.uiConfigs) userSettings.uiConfigs = {};
-    userSettings.uiConfigs.blurIntensity = val;
+    userSettings.uiConfigs.blurIntensity = parseInt(val);
     silentCloudSave();
   };
   window.updateCardOpacity = (val) => {
-    document.getElementById('cardOpacityVal').textContent = val + '%';
+    const vl = document.getElementById('cardOpacityVal');
+    if(vl) vl.textContent = val + '%';
     const alpha = (val/100).toFixed(2);
     const theme = document.documentElement.getAttribute('data-theme');
-    const base = theme === 'dark' ? `rgba(30, 41, 59, ${alpha})` : `rgba(255, 255, 255, ${alpha})`;
-    document.documentElement.style.setProperty('--card-bg', base);
+    document.documentElement.style.setProperty('--card-bg', theme === 'dark' ? `rgba(30,41,59,${alpha})` : `rgba(255,255,255,${alpha})`);
     if(!userSettings.uiConfigs) userSettings.uiConfigs = {};
-    userSettings.uiConfigs.cardOpacity = val;
+    userSettings.uiConfigs.cardOpacity = parseInt(val);
     silentCloudSave();
   };
-  window.setBlurTrigger = (mode) => {
+
+  // Blur easing applied to transition property on blur-supporting elements
+  let _blurEase = '0.4s cubic-bezier(0.22,1,0.36,1)';
+  window.updateBlurEase = (val) => {
+    _blurEase = val;
+    if(!userSettings.uiConfigs) userSettings.uiConfigs = {};
+    userSettings.uiConfigs.blurEase = val;
+    // Re-apply current trigger so easing takes effect
+    const mode = userSettings.uiConfigs.blurTrigger || 'off';
+    applyBlurTriggerStyle(mode);
+    silentCloudSave();
+  };
+
+  const applyBlurTriggerStyle = (mode) => {
+    const blurVal = `var(--glass-blur)`;
+    const ease = _blurEase;
+    const els = `.subject-card, .dashboard-wrapper, .chat-container, .chart-section`;
     const styleId = 'blur-trigger-style';
     let el = document.getElementById(styleId);
     if(!el) { el = document.createElement('style'); el.id = styleId; document.head.appendChild(el); }
+
+    const desc = { scroll:'Blur applies as you scroll.', hover:'Blur activates on hover.', always:'Blur always active.', focus:'Blur on focused element.', night:'Blur only at night (8pm–6am).', off:'Blur is off.' };
+    const descEl = document.getElementById('btrig_desc');
+    if(descEl) descEl.textContent = desc[mode] || '';
+
+    // Highlight active button, show/hide controls
+    document.querySelectorAll('.btrig-btn').forEach(b => { b.style.background=''; b.style.color=''; b.style.borderColor=''; });
+    const activBtn = document.getElementById('btrig_' + mode);
+    if(activBtn) { activBtn.style.background='var(--accent-blue)'; activBtn.style.color='#fff'; activBtn.style.borderColor='var(--accent-blue)'; }
+    const ctrl = document.getElementById('blurControls');
+    if(ctrl) ctrl.style.display = mode === 'off' ? 'none' : 'block';
+    const easeRow = document.getElementById('blurEasingRow');
+    if(easeRow) easeRow.style.display = (mode === 'hover' || mode === 'scroll') ? 'flex' : 'none';
+
     if(mode === 'always') {
-      el.textContent = `.subject-card, .dashboard-wrapper, .chat-container, .chart-section { backdrop-filter: var(--glass-blur) !important; }`;
+      el.textContent = `${els} { backdrop-filter: ${blurVal} !important; transition: backdrop-filter ${ease}; }`;
     } else if(mode === 'hover') {
-      el.textContent = `.subject-card:hover, .dashboard-wrapper:hover { backdrop-filter: var(--glass-blur) !important; transition: backdrop-filter 0.4s ease; }`;
+      el.textContent = `.subject-card, .dashboard-wrapper { backdrop-filter: none; transition: backdrop-filter ${ease}; } .subject-card:hover, .dashboard-wrapper:hover { backdrop-filter: ${blurVal} !important; }`;
+    } else if(mode === 'scroll') {
+      el.textContent = `.subject-card.visible, .dashboard-wrapper { backdrop-filter: ${blurVal} !important; transition: backdrop-filter ${ease}; }`;
     } else if(mode === 'focus') {
-      el.textContent = `*:focus-within { backdrop-filter: var(--glass-blur) !important; }`;
+      el.textContent = `*:focus-within { backdrop-filter: ${blurVal} !important; transition: backdrop-filter ${ease}; }`;
     } else if(mode === 'night') {
-      const hrs = new Date().getHours();
-      const isNight = hrs >= 20 || hrs < 6;
-      el.textContent = isNight ? `.subject-card, .dashboard-wrapper { backdrop-filter: var(--glass-blur) !important; }` : '';
-    } else if(mode === 'reduced') {
-      el.textContent = `@media (prefers-reduced-motion: reduce) { .subject-card, .dashboard-wrapper { backdrop-filter: var(--glass-blur) !important; } }`;
-    } else { el.textContent = ''; }
+      const isNight = new Date().getHours() >= 20 || new Date().getHours() < 6;
+      el.textContent = isNight ? `${els} { backdrop-filter: ${blurVal} !important; transition: backdrop-filter ${ease}; }` : '';
+    } else {
+      el.textContent = '';
+    }
+  };
+
+  window.setBlurTrigger = (mode) => {
     if(!userSettings.uiConfigs) userSettings.uiConfigs = {};
     userSettings.uiConfigs.blurTrigger = mode;
+    applyBlurTriggerStyle(mode);
     silentCloudSave();
   };
   window.updateNavBlur = (checked) => {
     const nav = document.querySelector('.top-nav');
-    if(nav) nav.style.backdropFilter = checked ? 'var(--glass-blur)' : 'none';
+    if(nav) nav.style.backdropFilter = checked ? 'blur(12px)' : 'none';
     if(!userSettings.uiConfigs) userSettings.uiConfigs = {};
     userSettings.uiConfigs.navBlur = checked;
     silentCloudSave();
@@ -3565,6 +3724,62 @@ updateStopwatchDisplay();
     userSettings.uiConfigs.cardGlass = checked;
     silentCloudSave();
   };
+
+  // ===== RESTORE ALL SETTINGS ON LOAD =====
+  const restoreBlurSettings = () => {
+    if(!userSettings.uiConfigs) return;
+    const ui = userSettings.uiConfigs;
+
+    // Blur intensity
+    if(ui.blurIntensity !== undefined) {
+      const sl = document.getElementById('blurIntensitySlider');
+      const vl = document.getElementById('blurIntensityVal');
+      if(sl) sl.value = ui.blurIntensity;
+      if(vl) vl.textContent = ui.blurIntensity + 'px';
+      document.documentElement.style.setProperty('--glass-blur', `blur(${ui.blurIntensity}px)`);
+    }
+    // Card opacity
+    if(ui.cardOpacity !== undefined) {
+      const sl = document.getElementById('cardOpacitySlider');
+      const vl = document.getElementById('cardOpacityVal');
+      if(sl) sl.value = ui.cardOpacity;
+      if(vl) vl.textContent = ui.cardOpacity + '%';
+    }
+    // Blur ease
+    if(ui.blurEase) {
+      _blurEase = ui.blurEase;
+      const sel = document.getElementById('blurEaseSelect');
+      if(sel) sel.value = ui.blurEase;
+    }
+    // Blur trigger (sets buttons + conditional panels)
+    const mode = ui.blurTrigger || 'off';
+    applyBlurTriggerStyle(mode);
+
+    // Nav blur
+    if(ui.navBlur === false) { const cb = document.getElementById('tgl_nav_blur'); if(cb) { cb.checked = false; updateNavBlur(false); } }
+    // Card glass
+    if(ui.cardGlass === false) { const cb = document.getElementById('tgl_card_glass'); if(cb) { cb.checked = false; updateCardGlass(false); } }
+    // ETA
+    const etaOn = ui.etaOn !== false;
+    const etaCb = document.getElementById('etaSettingToggle');
+    if(etaCb) etaCb.checked = etaOn;
+    toggleEtaDisplay(etaOn);
+
+    // Anim mode buttons highlight
+    const animFilter = ui.animFilter || 'opacity';
+    document.querySelectorAll('.smode-btn').forEach(b => { b.style.background=''; b.style.color=''; b.style.borderColor=''; });
+    const activeAnim = document.getElementById(`filter_${animFilter}_btn`);
+    if(activeAnim) { activeAnim.style.background='var(--accent-blue)'; activeAnim.style.color='#fff'; activeAnim.style.borderColor='var(--accent-blue)'; }
+    // Hide animControls if mode=off
+    const animCtrl = document.getElementById('animControls');
+    if(animCtrl) animCtrl.style.display = animFilter === 'off' ? 'none' : 'flex';
+
+    // Anim duration/ease/delay
+    if(ui.animDur) { const sl=document.getElementById('animDurationSlider'); const vl=document.getElementById('animDurationVal'); if(sl)sl.value=ui.animDur; if(vl)vl.textContent=ui.animDur+'ms'; _animDur=ui.animDur; }
+    if(ui.animEase) { const sel=document.getElementById('animEaseSelect'); if(sel)sel.value=ui.animEase; _animEase=ui.animEase; }
+    if(ui.animDelay!==undefined) { const sl=document.getElementById('animDelaySlider'); const vl=document.getElementById('animDelayVal'); if(sl)sl.value=ui.animDelay; if(vl)vl.textContent=ui.animDelay+'ms'; _animDelay=ui.animDelay; }
+  };
+  setTimeout(restoreBlurSettings, 1200);
 
   // ===== USER SEARCH & PROFILE PEEK =====
   let allUsersData = [];
@@ -3799,14 +4014,7 @@ updateStopwatchDisplay();
 
 
 
-
-
-
-                        .vibe-bar {
-                        background-size: 200% 100% !important;
-                        animation: progressFlow 5s linear infinite;
-                      }
-                        
+   
    
    
         </style>
@@ -3840,18 +4048,16 @@ updateStopwatchDisplay();
                 </div>
 
 
-                        
-
-                                    
-
-
-
-
-
-
-
-
-
+                        <!-- Expanded Chat Fullscreen Modal -->
+                        <div id="expandedChatModal" class="modal-overlay" style="display:none;">
+                          <div class="modal-card" style="max-width:95vw; width:95vw; height:90vh; max-height:90vh;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                              <h2 style="margin:0;">💬 Community Chat (Expanded)</h2>
+                              <button class="btn-small" onclick="closeExpandedChat()">✖ Close</button>
+                            </div>
+                            <div id="expandedChatFeed" class="chat-feed" style="flex:1; overflow-y:auto; background:var(--bg); border-radius:16px; padding:15px;"></div>
+                          </div>
+                        </div>
 
 
 
@@ -3918,52 +4124,41 @@ updateStopwatchDisplay();
     </div>
     <script>
         const sections = document.querySelectorAll('.section'); let smoothScrollY = window.scrollY;
+        
 
-        // ── Dreamy opacity-based parallax (PC & Mobile optimised) ──
-        function renderParallax() {
-            smoothScrollY += (window.scrollY - smoothScrollY) * 0.048;
-            const isMobile = window.innerWidth < 768;
-            sections.forEach(sec => {
-                const content = sec.querySelector('.dynamic-content');
-                if(!content) return;
-                const rect = sec.getBoundingClientRect();
-                const absoluteTop = window.scrollY + rect.top;
-                const sectionCenter = absoluteTop + (rect.height / 2);
-                const viewCenter = smoothScrollY + (window.innerHeight / 2);
-                let distance = sectionCenter - viewCenter;
-                let ratio = distance / (window.innerHeight * (isMobile ? 1.0 : 0.82));
-                ratio = Math.max(-1, Math.min(1, ratio));
-                const absRatio = Math.abs(ratio);
-                // Opacity does the dreamy heavy lifting
-                const opacity = Math.max(0.48, 1 - (absRatio * 0.7));
-                const scale = 1 - (absRatio * (isMobile ? 0.018 : 0.03));
-                const translateY = ratio * (isMobile ? 24 : 40);
-                content.style.opacity = opacity;
-                content.style.transform = \`translateY(\${translateY}px) scale(\${scale})\`;
-            });
-            requestAnimationFrame(renderParallax);
-        }
+
+
+          function renderParallax() {
+              smoothScrollY += (window.scrollY - smoothScrollY) * 0.06;   // smoother follow
+              sections.forEach(sec => {
+                  const content = sec.querySelector('.dynamic-content');
+                  const rect = sec.getBoundingClientRect();
+                  const absoluteTop = window.scrollY + rect.top;
+                  const sectionCenter = absoluteTop + (rect.height / 2);
+                  const viewCenter = smoothScrollY + (window.innerHeight / 2);
+                  let distance = sectionCenter - viewCenter;
+                  let ratio = distance / (window.innerHeight * 0.7);      // less sensitive
+                  ratio = Math.max(-1, Math.min(1, ratio));
+                  const absRatio = Math.abs(ratio);
+                  
+                  // Gentler opacity fade: min 0.75, less drop per ratio
+                  const opacity = Math.max(0.75, 1 - (absRatio * 0.5));
+                  // Subtler scale and translation
+                  const scale = 1 - (absRatio * 0.05);
+                  const translateY = ratio * 60;
+                  
+                  content.style.opacity = opacity;
+                  content.style.transform = \`translateY(\${translateY}px) scale(\${scale})\`;
+              });
+              requestAnimationFrame(renderParallax);
+          }
+
+
+
         requestAnimationFrame(renderParallax);
 
-        // ── Hover Tilt / Plates effect on .card ──
-        const cards = document.querySelectorAll('.card');
-        cards.forEach(card => {
-            card.style.transition = 'transform 0.15s cubic-bezier(0.2,0,0,1), box-shadow 0.25s ease';
-            card.addEventListener('mousemove', e => {
-                const rect = card.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-                const cx = rect.width / 2, cy = rect.height / 2;
-                const rotX = ((y - cy) / cy) * -11;
-                const rotY = ((x - cx) / cx) * 11;
-                card.style.transform = \`perspective(880px) rotateX(\${rotX}deg) rotateY(\${rotY}deg) scale3d(1.035,1.035,1.035)\`;
-                card.style.boxShadow = \`\${rotY * -1.5}px \${rotX * 1.5}px 32px rgba(0,0,0,0.22)\`;
-            });
-            card.addEventListener('mouseleave', () => {
-                card.style.transform = 'perspective(880px) rotateX(0deg) rotateY(0deg) scale3d(1,1,1)';
-                card.style.boxShadow = '';
-            });
-        });
+        
+        const cards = document.querySelectorAll('.card'); cards.forEach(card => { card.addEventListener('mousemove', e => { const rect = card.getBoundingClientRect(); const x = e.clientX - rect.left; const y = e.clientY - rect.top; const centerX = rect.width / 2; const centerY = rect.height / 2; const rotateX = ((y - centerY) / centerY) * -8; const rotateY = ((x - centerX) / centerX) * 8; card.style.transform = \`perspective(1000px) rotateX(\${rotateX}deg) rotateY(\${rotateY}deg) scale3d(1.02, 1.02, 1.02)\`; }); card.addEventListener('mouseleave', () => { card.style.transform = \`perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)\`; }); });
         const dot = document.getElementById('c-dot'); const ring = document.getElementById('c-ring'); let mouseX = window.innerWidth / 2, mouseY = window.innerHeight / 2; let ringX = mouseX, ringY = mouseY; let dotX = mouseX, dotY = mouseY;
         window.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; });
         function animateCursor() { dotX += (mouseX - dotX) * 0.5; dotY += (mouseY - dotY) * 0.5; ringX += (mouseX - ringX) * 0.15; ringY += (mouseY - ringY) * 0.15; dot.style.left = \`\${dotX}px\`; dot.style.top = \`\${dotY}px\`; ring.style.left = \`\${ringX}px\`; ring.style.top = \`\${ringY}px\`; requestAnimationFrame(animateCursor); }
@@ -4173,9 +4368,6 @@ window.hideChatContainer = function() {
   if (toggleBtn) toggleBtn.innerHTML = '💬 Show Messages';
 };
 
-
-
-
 // openExpandedChat - Opens chat in fullscreen modal
 window.openExpandedChat = function() {
   const modal = document.getElementById('expandedChatModal');
@@ -4183,24 +4375,17 @@ window.openExpandedChat = function() {
     console.warn('Expanded chat modal not found');
     return;
   }
-
+  
   const expandedFeed = document.getElementById('expandedChatFeed');
   const chatFeed = document.getElementById('chatFeed');
-
+  
   if (chatFeed && expandedFeed) {
     expandedFeed.innerHTML = chatFeed.innerHTML;
-    // Auto-scroll to latest message
-    setTimeout(() => {
-      expandedFeed.scrollTop = expandedFeed.scrollHeight;
-    }, 50);
   }
-
+  
   modal.style.display = 'flex';
-  modal.style.opacity = '1';
+  setTimeout(() => modal.style.opacity = '1', 10);
 };
-
-
-
 
 // closeExpandedChat - Closes the expanded chat modal
 window.closeExpandedChat = function() {
@@ -4210,9 +4395,6 @@ window.closeExpandedChat = function() {
   modal.style.opacity = '0';
   setTimeout(() => modal.style.display = 'none', 300);
 };
-
-
-
 
 // Make sure the modal overlay properly closes on background click
 document.addEventListener('DOMContentLoaded', function() {
@@ -4244,72 +4426,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 
-// ── Main page hover-tilt (Plates effect) for dashboard cards ──
-(function initMainTilt() {
-  const TILT_SELECTORS = '.subject-card';
-  
-  const applyTilt = (el) => {
-    if (window.matchMedia('(hover: none)').matches) return;
-    // Only apply once
-    if (el.dataset.tiltInit) return;
-    el.dataset.tiltInit = '1';
-
-    el.addEventListener('mousemove', function(e) {
-      const r = this.getBoundingClientRect();
-      const x = e.clientX - r.left, y = e.clientY - r.top;
-      const cx = r.width / 2, cy = r.height / 2;
-      const rotX = ((y - cy) / cy) * -5;
-      const rotY = ((x - cx) / cx) * 5;
-      this.style.transition = 'transform 0.12s cubic-bezier(0.2,0,0,1)';
-      this.style.transform = `perspective(900px) rotateX(${rotX}deg) rotateY(${rotY}deg) translateY(-2px)`;
-      this.style.boxShadow = `${rotY * -1.2}px ${rotX * 1.2}px 24px rgba(0,0,0,0.14)`;
-    });
-    el.addEventListener('mouseleave', function() {
-      this.style.transition = 'transform 0.35s cubic-bezier(0.2,0,0,1), box-shadow 0.35s ease';
-      this.style.transform = 'perspective(900px) rotateX(0deg) rotateY(0deg) translateY(0)';
-      this.style.boxShadow = '';
-    });
-  };
-
-  // Apply only AFTER element is visible (no flicker during fade-in)
-  const waitAndApply = (el) => {
-    if (el.classList.contains('visible')) {
-      applyTilt(el);
-    } else {
-      // Wait for visible class before attaching tilt
-      const mo = new MutationObserver(() => {
-        if (el.classList.contains('visible')) {
-          mo.disconnect();
-          applyTilt(el);
-        }
-      });
-      mo.observe(el, { attributes: true, attributeFilter: ['class'] });
-    }
-  };
-
-  document.querySelectorAll(TILT_SELECTORS).forEach(waitAndApply);
-
-  // Watch for dynamically added cards
-  const tiltObserver = new MutationObserver(mutations => {
-    mutations.forEach(m => m.addedNodes.forEach(node => {
-      if (node.nodeType !== 1) return;
-      if (node.matches && node.matches(TILT_SELECTORS)) waitAndApply(node);
-      node.querySelectorAll && node.querySelectorAll(TILT_SELECTORS).forEach(waitAndApply);
-    }));
-  });
-  tiltObserver.observe(document.body, { childList: true, subtree: true });
-})();
-
 </script>
-<!-- Expanded Chat Fullscreen Modal (Main Page) -->
-<div id="expandedChatModal" class="modal-overlay" style="display:none; transition: opacity 0.3s ease;">
-  <div class="modal-card" style="max-width:95vw; width:95vw; height:90vh; max-height:90vh;">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-      <h2 style="margin:0;">💬 Community Chat (Expanded)</h2>
-      <button class="btn-small" onclick="closeExpandedChat()">✖ Close</button>
-    </div>
-    <div id="expandedChatFeed" class="chat-feed" style="flex:1; overflow-y:auto; background:var(--bg); border-radius:16px; padding:15px;"></div>
-  </div>
-</div>
 </body>
 </html>
