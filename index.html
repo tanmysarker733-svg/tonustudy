@@ -186,7 +186,7 @@
     .gauge-svg { width: 100%; height: 100%; transform: rotate(-90deg); filter: drop-shadow(0 4px 8px var(--shadow)); will-change: transform; }
     .circle-bg { fill: none; stroke: var(--border); stroke-linecap: round; }
     .circle-prog { fill: none; stroke-linecap: round; transition: stroke-dashoffset 0.8s ease-out; will-change: stroke-dashoffset; }
-    .prog-actual { stroke: var(--color-done); stroke-width: 12; stroke-dasharray: 314; stroke-dashoffset: 314; }
+    .prog-actual { stroke: url(#actualGradient); stroke-width: 12; stroke-dasharray: 314; stroke-dashoffset: 314; }
     .prog-time { stroke: url(#timeGradient); stroke-width: 8; stroke-dasharray: 251; stroke-dashoffset: 251; }
     .target-pulse { animation: pulseA 3s infinite alternate; will-change: transform; }
     @keyframes pulseA { from { text-shadow: 0 0 8px rgba(59,130,246,0.2); transform: scale(1); } to { text-shadow: 0 0 15px rgba(124,58,237,0.4); transform: scale(1.03); } }
@@ -222,8 +222,9 @@
 
     /* ----------------- SUBJECT TRACKER GRID ----------------- */
     .container { max-width: 1400px; margin: 0 auto; padding: 0 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 30px; }
-    .subject-card { background: var(--card-bg); backdrop-filter: blur(6px); border-radius: 24px; padding: 25px; box-shadow: 0 8px 20px var(--shadow); border: 1px solid var(--border); transition: transform 0.2s ease-out, box-shadow 0.2s ease-out; display: flex; flex-direction: column; will-change: transform; }
-    .subject-card:hover { transform: translateY(-2px); }
+    .subject-card { background: var(--card-bg); backdrop-filter: blur(6px); border-radius: 24px; padding: 25px; box-shadow: 0 8px 20px var(--shadow); border: 1px solid var(--border); transition: transform 0.15s ease-out; display: flex; flex-direction: column; will-change: transform; transform-style: preserve-3d; }
+    .subject-card:hover { }
+    .subject-card.no-tilt:hover { transform: translateY(-2px); }
     
     .step-btn { background: var(--panel-bg); border: 1px solid var(--border); color: var(--text-main); border-radius: 8px; width: 28px; height: 28px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; font-size: 1rem; transition: 0.2s; }
     .step-btn:hover { background: var(--accent-blue); color: white; border-color: var(--accent-blue); }
@@ -268,7 +269,9 @@
     .message-bubble { display: flex; gap: 12px; animation: modalIn 0.2s ease-out; }
     .message-avatar { flex-shrink: 0; width: 42px; height: 42px; border-radius: 16px; background: var(--accent-gradient); display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 1.1rem; overflow: hidden; }
     .message-avatar img { width: 100%; height: 100%; object-fit: cover; }
-    .message-bubble-body { background: var(--chat-bubble); color: var(--text-main); padding: 14px 18px; border-radius: 20px; border-top-left-radius: 4px; font-size: 0.95rem; word-break: break-word; border: 1px solid var(--border); }
+    .message-bubble-body { background: var(--chat-bubble); color: var(--text-main); padding: 6px 10px; border-radius: 20px; border-top-left-radius: 4px; font-size: 0.75rem; word-break: break-word; border: 0.5px solid var(--border); line-height: 1.4; }
+    .msg-collapsed { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; max-height: 72px; }
+    .msg-expanded { display: block; overflow: visible; max-height: none; }
     
     .notif-toast { position: fixed; top: 90px; right: 20px; background: var(--text-main); color: var(--bg); padding: 15px 20px; border-radius: 20px; box-shadow: 0 15px 40px var(--shadow); display: flex; align-items: center; gap: 15px; z-index: 10004; font-size: 0.85rem; font-weight: 700; max-width: 320px; animation: modalIn 0.4s ease; }
     .notif-toast.warning { background: var(--color-running); color: #fff; top: 160px; }
@@ -374,8 +377,7 @@
 }
 
 /* Gauge Colors - ব্ল্যাক/হোয়াইট */
-.prog-actual { stroke: #f0f0f0 !important; }
-[data-theme="light"] .prog-actual { stroke: #0f172a !important; }
+/* prog-actual uses gradient */
 .target-pulse {
   text-shadow: 0 0 20px rgba(255,255,255,0.7) !important;
   color: white !important;
@@ -397,14 +399,7 @@
   opacity: 1;
 }
 
-/* Mouse glow effect (optional) */
-.dashboard-wrapper:hover, .welcome-intro:hover {
-  box-shadow: 0 40px 80px -10px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.1) inset !important;
-}
-[data-theme="light"] .dashboard-wrapper:hover,
-[data-theme="light"] .welcome-intro:hover {
-  box-shadow: 0 40px 80px -10px rgba(0,0,0,0.25), 0 0 0 1px rgba(0,0,0,0.08) inset !important;
-}
+/* Mouse glow effect disabled */
 
 /* mobile responsive */
 @media (max-width: 600px) {
@@ -507,34 +502,91 @@
 }
 
 /* Input fields & controls */
-#pointEditorModal .pe-control {
+#pointEditorModal .pe-group {
   background: rgba(255, 255, 255, 0.08) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  border-radius: 12px !important;
-  padding: 6px 8px !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 24px !important;
+  padding: 18px !important;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+[data-theme="light"] #pointEditorModal .pe-group {
+  background: rgba(255, 255, 255, 0.92) !important;
+  border: 1px solid rgba(15, 23, 42, 0.08) !important;
+}
+
+#pointEditorModal .pe-group.total {
+  border-color: rgba(255, 255, 255, 0.22) !important;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06) !important;
+}
+[data-theme="light"] #pointEditorModal .pe-group.total {
+  border-color: rgba(15, 23, 42, 0.12) !important;
+  box-shadow: none !important;
+}
+
+#pointEditorModal .pe-group > div:nth-child(2) {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+#pointEditorModal .pe-control {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  border-radius: 18px !important;
+  padding: 10px 12px !important;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 120px;
+  flex: 1;
 }
 [data-theme="light"] #pointEditorModal .pe-control {
-  background: rgba(0, 0, 0, 0.03) !important;
-  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  background: rgba(15, 23, 42, 0.04) !important;
+  border: 1px solid rgba(15, 23, 42, 0.08) !important;
+}
+
+#pointEditorModal .pe-control span {
+  color: inherit !important;
+  font-weight: 700;
+  min-width: 18px;
+  text-align: center;
+}
+
+#pointEditorModal .pe-control input.pe-val {
+  width: 44px !important;
+  text-align: center;
+  border: none !important;
+  background: transparent !important;
+  color: inherit !important;
+  font-size: 1rem !important;
+  font-weight: 900 !important;
+  outline: none !important;
 }
 
 #pointEditorModal .pe-step-btn {
-  background: rgba(255, 255, 255, 0.05) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  color: #fff !important;
-  border-radius: 8px !important;
-  font-weight: 700;
+  width: 34px !important;
+  height: 34px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: rgba(255, 255, 255, 0.15) !important;
+  border: none !important;
+  color: inherit !important;
+  border-radius: 12px !important;
+  padding: 0 !important;
 }
 [data-theme="light"] #pointEditorModal .pe-step-btn {
-  background: rgba(0, 0, 0, 0.04) !important;
-  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  background: rgba(15, 23, 42, 0.06) !important;
   color: #0f172a !important;
 }
 
 #pointEditorModal .pe-step-btn:hover {
-  background: var(--accent-blue) !important;
-  color: white !important;
-  border-color: var(--accent-blue) !important;
+  background: rgba(37, 99, 235, 0.18) !important;
+  color: #0f172a !important;
 }
 
 #pointEditorModal .pe-val {
@@ -546,7 +598,12 @@
 #pointEditorModal .pe-group > div:first-child {
   color: inherit !important;
   font-weight: 800;
-  margin-bottom: 5px;
+  margin-bottom: 0;
+}
+
+#pointEditorModal .btn-small,
+#pointEditorModal .login-btn {
+  min-height: 46px !important;
 }
 
 /* Cancel / Save buttons */
@@ -1020,7 +1077,7 @@ a, button, .btn-small, .login-btn, .float-btn, .float-tool-btn,
 
 
 /* Syllabus Done প্রোগ্রেস রিং-এর রং */
-.prog-actual {   stroke: #ff6a00 !important;   /* আপনার পছন্দের রং */ }
+/* prog-actual gradient active */
 
 
 
@@ -1196,6 +1253,14 @@ a, button, .btn-small, .login-btn, .float-btn, .float-tool-btn,
           <button class="btn-small" style="width:100%;margin-top:10px;" onclick="resetGlobalColors()">↺ Reset Colors</button>
         </div>
 
+        <!-- Gauge Ring Gradient -->
+        <div class="settings-group">
+          <h4 style="margin:0 0 10px 0;color:var(--accent-blue);">🎯 Target Ring Gradient</h4>
+          <div class="settings-row"><span>🔴 Outer Ring Start</span><input type="color" id="gauge_outer_start" class="color-picker" value="#f97316" onchange="updateGaugeGradient()"></div>
+          <div class="settings-row" style="border:none;"><span>🟠 Outer Ring End</span><input type="color" id="gauge_outer_end" class="color-picker" value="#fb923c" onchange="updateGaugeGradient()"></div>
+          <button class="btn-small" style="width:100%;margin-top:10px;" onclick="resetGaugeGradient()">↺ Reset Ring Colors</button>
+        </div>
+
         <!-- Chapter Bar Gradient -->
         <div class="settings-group">
           <h4 style="margin:0 0 10px 0;color:var(--accent-blue);">📊 Chapter Bar Style</h4>
@@ -1323,8 +1388,9 @@ a, button, .btn-small, .login-btn, .float-btn, .float-tool-btn,
         <!-- Glass toggles -->
         <div class="settings-group">
           <h4 style="margin:0 0 10px 0;color:var(--accent-blue);">🪟 Glass Elements</h4>
-          <div class="settings-row"><span style="font-size:0.82rem;">Nav Bar Blur</span><input type="checkbox" id="tgl_nav_blur" onchange="updateNavBlur(this.checked)" style="width:18px;height:18px;cursor:pointer;" checked></div>
-          <div class="settings-row" style="border:none;"><span style="font-size:0.82rem;">Card Glass Effect</span><input type="checkbox" id="tgl_card_glass" onchange="updateCardGlass(this.checked)" style="width:18px;height:18px;cursor:pointer;" checked></div>
+          <div class="settings-row"><span style="font-size:0.82rem;">Nav Bar Blur</span><input type="checkbox" id="tgl_nav_blur" onchange="updateNavBlur(this.checked)" style="width:18px;height:18px;cursor:pointer;"></div>
+          <div class="settings-row"><span style="font-size:0.82rem;">Card Glass Effect</span><input type="checkbox" id="tgl_card_glass" onchange="updateCardGlass(this.checked)" style="width:18px;height:18px;cursor:pointer;"></div>
+          <div class="settings-row" style="border:none;"><span style="font-size:0.82rem;">🎲 Card 3D Tilt</span><input type="checkbox" id="tgl_card_tilt" onchange="updateCardTilt(this.checked)" style="width:18px;height:18px;cursor:pointer;"></div>
         </div>
 
       </div><!-- /stab-blur -->
@@ -1554,7 +1620,7 @@ a, button, .btn-small, .login-btn, .float-btn, .float-tool-btn,
       </div>
     </div>
 
-    <div class="pe-group" style="border: 2px solid var(--border);">
+    <div class="pe-group total">
       <div style="font-weight: 900; color: var(--text-main);">🔥 Total Study</div>
       <div style="display: flex; gap: 10px;">
         <div class="pe-control"><button class="pe-step-btn" onclick="adjPE('total_h', -1)">-</button><input type="text" id="pe_total_h" class="pe-val" readonly><span>h</span><button class="pe-step-btn" onclick="adjPE('total_h', 1)">+</button></div>
@@ -1572,10 +1638,19 @@ a, button, .btn-small, .login-btn, .float-btn, .float-tool-btn,
 <!-- History Modal -->
 <div id="historyModal" class="modal-overlay">
   <div class="modal-card">
-    <h3 style="margin:0; text-align: center;">🕒 Cloud Backup Vault</h3>
-    <div style="font-size:0.8rem; color:var(--color-pending); text-align:center;">Restoring overwrites current state.</div>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+      <h3 style="margin:0; text-align: center; flex:1;">🕒 Cloud Backup Vault</h3>
+      <button class="btn-small" style="padding:6px 12px; font-size:0.8rem;" onclick="downloadVaultJSON()">📥 Export</button>
+    </div>
+    <div style="font-size:0.8rem; color:var(--color-pending); text-align:center;">Last 90 days (latest update per day) • Restoring overwrites current state</div>
     <div style="display:flex; flex-direction:column; gap:10px; max-height:300px; overflow-y:auto; margin-top:10px;" id="historyList"></div>
-    <button class="btn-small" style="padding:10px; margin-top:10px;" onclick="toggleElement('historyModal')">Close</button>
+    <div style="display:flex; gap:8px; margin-top:10px;">
+      <label style="flex:1;">
+        <input type="file" id="vaultFileInput" accept=".json" style="display:none;" onchange="importVaultJSON()">
+        <button class="btn-small" style="padding:10px; width:100%; cursor:pointer;" onclick="document.getElementById('vaultFileInput').click()">📤 Import</button>
+      </label>
+      <button class="btn-small" style="padding:10px; flex:1;" onclick="toggleElement('historyModal')">Close</button>
+    </div>
   </div>
 </div>
 
@@ -1750,11 +1825,12 @@ a, button, .btn-small, .login-btn, .float-btn, .float-tool-btn,
       <div class="gauge-container">
         <svg class="gauge-svg" viewBox="0 0 120 120">
           <defs>
-            <linearGradient id="timeGradient" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#2563eb" /><stop offset="100%" stop-color="#7c3aed" /></linearGradient>
+            <linearGradient id="timeGradient" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#06b6d4" /><stop offset="100%" stop-color="#6366f1" /></linearGradient>
+            <linearGradient id="actualGradient" x1="0%" y1="0%" x2="100%" y2="100%"><stop id="actualGradStart" offset="0%" stop-color="#f97316" /><stop id="actualGradEnd" offset="100%" stop-color="#fb923c" /></linearGradient>
           </defs>
           <circle class="circle-bg" cx="60" cy="60" r="50" stroke-width="12"></circle>
           <circle class="circle-bg" cx="60" cy="60" r="38" stroke-width="8" opacity="0.3"></circle>
-          <circle id="arc_actual" class="circle-prog prog-actual" cx="60" cy="60" r="50"></circle>
+          <circle id="arc_actual" class="circle-prog prog-actual" cx="60" cy="60" r="50" stroke="url(#actualGradient)"></circle>
           <circle id="arc_time" class="circle-prog prog-time" cx="60" cy="60" r="38"></circle>
         </svg>
         <div style="position:absolute; text-align:center;">
@@ -1890,6 +1966,7 @@ const firebaseConfig = {
   let syllabusData = [];
   let studyLogs = {};
   let stateHistory = [];
+  window.dailyVaultHistory = []; // Last 14 days vault history (one entry per day)
   let allChatMessages = [];
   
   // Safe default retrieval for graph to fix the initial blank graph glitch
@@ -1914,7 +1991,7 @@ const firebaseConfig = {
     fbLink: "",
     barColors: { done: '#10b981', running: '#FFD400', pending: '#ef4444' },
     graphColors: { self: '#2563eb', class: '#ef4444', total: '#0f172a' },
-    uiConfigs: { showOrbs: true, showVibes: true, gradientBars: false },
+    uiConfigs: { showOrbs: true, showVibes: true, gradientBars: false, navBlur: false, cardGlass: false },
     chapterBarColors: { start: '#ef4444', mid: '#f59e0b', end: '#10b981' }
   };
   
@@ -2299,6 +2376,37 @@ let sessionDuration = 25 * 60;      // store current session length
 
   window.updateGlobalColors = () => { if(adminMode) return; userSettings.barColors.done = document.getElementById('col_done').value; userSettings.barColors.running = document.getElementById('col_run').value; userSettings.barColors.pending = document.getElementById('col_pend').value; applyCustomSettings(); renderUI(); renderHeroDashboard(); renderChart(); silentCloudSave(); };
   window.resetGlobalColors = () => { if(adminMode) return; userSettings.barColors = { done: '#10b981', running: '#f59e0b', pending: '#ef4444' }; applyCustomSettings(); renderUI(); renderHeroDashboard(); renderChart(); silentCloudSave(); };
+
+  // ===== GAUGE GRADIENT FUNCTIONS =====
+  window.updateGaugeGradient = () => {
+    if(adminMode) return;
+    const startColor = document.getElementById('gauge_outer_start').value;
+    const endColor = document.getElementById('gauge_outer_end').value;
+    const startStop = document.getElementById('actualGradStart');
+    const endStop = document.getElementById('actualGradEnd');
+    if(startStop) startStop.setAttribute('stop-color', startColor);
+    if(endStop) endStop.setAttribute('stop-color', endColor);
+    if(!userSettings.uiConfigs) userSettings.uiConfigs = {};
+    userSettings.uiConfigs.gaugeGradStart = startColor;
+    userSettings.uiConfigs.gaugeGradEnd = endColor;
+    silentCloudSave();
+  };
+  window.resetGaugeGradient = () => {
+    if(adminMode) return;
+    const defStart = '#f97316'; const defEnd = '#fb923c';
+    const startPicker = document.getElementById('gauge_outer_start');
+    const endPicker = document.getElementById('gauge_outer_end');
+    if(startPicker) startPicker.value = defStart;
+    if(endPicker) endPicker.value = defEnd;
+    const startStop = document.getElementById('actualGradStart');
+    const endStop = document.getElementById('actualGradEnd');
+    if(startStop) startStop.setAttribute('stop-color', defStart);
+    if(endStop) endStop.setAttribute('stop-color', defEnd);
+    if(!userSettings.uiConfigs) userSettings.uiConfigs = {};
+    userSettings.uiConfigs.gaugeGradStart = defStart;
+    userSettings.uiConfigs.gaugeGradEnd = defEnd;
+    silentCloudSave();
+  };
   window.updateGraphColors = () => { if(adminMode) return; userSettings.graphColors.self = document.getElementById('gcol_self').value; userSettings.graphColors.class = document.getElementById('gcol_class').value; userSettings.graphColors.total = document.getElementById('gcol_total').value; applyCustomSettings(); renderChart(); silentCloudSave(); };
   window.updateGraphConfigs = () => { if(adminMode) return; graphConfig.maxLimit = parseInt(document.getElementById('tgl_max').value) || 15; graphConfig.daysToLoad = Math.max(1, Math.min(2190, parseInt(document.getElementById('tgl_days').value) || 15)); graphConfig.pcDaysView = parseInt(document.getElementById('pc_view').value) || 15; graphConfig.mobDaysView = parseInt(document.getElementById('mob_view').value) || 15; localStorage.setItem('v20_graph_config', JSON.stringify(graphConfig)); renderChart(); };
   window.resetGraphLogs = () => { if(adminMode) return; if(confirm("Are you sure? This deletes ALL study time data!")) { studyLogs = {}; silentCloudSave(); renderChart(); renderHeroDashboard(); } };
@@ -2759,7 +2867,45 @@ let sessionDuration = 25 * 60;      // store current session length
       });
     }
     initObserver();
+    applyCardTilt();
   };
+
+  // ===== CARD 3D TILT (event delegation — no cloneNode) =====
+  const applyCardTilt = () => {
+    const enabled = userSettings.uiConfigs && userSettings.uiConfigs.cardTilt;
+    document.querySelectorAll('.subject-card').forEach(card => {
+      if(enabled) card.classList.remove('no-tilt');
+      else { card.classList.add('no-tilt'); card.style.transform = ''; }
+    });
+  };
+  // Single delegated listener — attached once after DOM ready
+  document.addEventListener('DOMContentLoaded', () => {
+    const tracker = document.getElementById('beast_tracker');
+    if(!tracker) return;
+    tracker.addEventListener('mousemove', (e) => {
+      const card = e.target.closest('.subject-card');
+      if(!card || card.classList.contains('no-tilt')) return;
+      // Remove transition during move for instant tracking feel
+      card.style.transition = '';
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const cx = rect.width / 2, cy = rect.height / 2;
+      const rotX = ((y - cy) / cy) * -7;
+      const rotY = ((x - cx) / cx) * 7;
+      card.style.transform = `perspective(900px) rotateX(${rotX}deg) rotateY(${rotY}deg) scale3d(1.02,1.02,1.02)`;
+    });
+    tracker.addEventListener('mouseout', (e) => {
+      const card = e.target.closest('.subject-card');
+      if(!card || card.classList.contains('no-tilt')) return;
+      if(card.contains(e.relatedTarget)) return;
+      // Smooth spring reset
+      card.style.transition = 'transform 0.55s cubic-bezier(0.22,1,0.36,1)';
+      card.style.transform = '';
+      // Clear transition after it completes so move tracking is instant again
+        setTimeout(() => { if(card) card.style.transition = ''; }, 560);
+    });
+  });
 
   let globalObserver;
   let tooltipTimeout;
@@ -2775,7 +2921,20 @@ let sessionDuration = 25 * 60;      // store current session length
   };
 
   const pushToHistory = () => { if(adminMode) return; stateHistory.push({ data: JSON.stringify({ syllabus: syllabusData, studyLogs: studyLogs, userSettings: userSettings }), time: new Date().toLocaleString() }); if(stateHistory.length > 5) stateHistory.shift(); };
-  window.silentCloudSave = async (skipHistory = false) => { if (!currentUser || adminMode) return; if(!skipHistory) pushToHistory(); try { await setDoc(doc(db, "hsc_chronos_v20_master", currentUser.uid), { syllabus: syllabusData, studyLogs: studyLogs, userSettings: userSettings, stateHistory: stateHistory }, { merge: true }); } catch (e) { console.error(e); } };
+  
+  const pushToDailyVault = () => {
+    if(adminMode) return;
+    const today = new Date().toISOString().split('T')[0];
+    const stateData = { syllabus: syllabusData, studyLogs: studyLogs, userSettings: userSettings, date: today, time: new Date().toLocaleString() };
+    const existingIdx = dailyVaultHistory.findIndex(v => v.date === today);
+    if(existingIdx >= 0) {
+      dailyVaultHistory[existingIdx] = stateData;
+    } else {
+      dailyVaultHistory.push(stateData);
+      if(dailyVaultHistory.length > 90) dailyVaultHistory.shift();
+    }
+  };
+  window.silentCloudSave = async (skipHistory = false) => { if (!currentUser || adminMode) return; if(!skipHistory) { pushToHistory(); pushToDailyVault(); } try { await setDoc(doc(db, "hsc_chronos_v20_master", currentUser.uid), { syllabus: syllabusData, studyLogs: studyLogs, userSettings: userSettings, stateHistory: stateHistory, dailyVaultHistory: dailyVaultHistory }, { merge: true }); } catch (e) { console.error(e); } };
 
   window.login = async () => { document.getElementById('cloudLoader').style.display = 'block'; try { await signInWithPopup(auth, provider); } catch(e){} finally { document.getElementById('cloudLoader').style.display = 'none'; }};
   window.logout = () => { signOut(auth); location.reload(); };
@@ -2845,7 +3004,7 @@ let sessionDuration = 25 * 60;      // store current session length
                       <div style="display:flex; flex-direction:column; max-width:80%; align-items:${isMe ? 'flex-end' : 'flex-start'};">
                         <span style="font-size:0.75rem; color:var(--text-sub); margin-bottom:4px; font-weight:700;">${nameDisplay} • ${time}</span>
                         <div class="message-bubble-body" style="${isMe ? 'background:var(--chat-own-bubble); border-top-right-radius:4px; border-top-left-radius:20px;' : ''}">
-                          <div id="msgBody_${messageId}" style="${d.text.length > 200 ? 'display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;' : ''}">${d.text.replace(/\n/g, '<br>')}</div>
+                          <div id="msgBody_${messageId}" class="${d.text.length > 200 ? 'msg-collapsed' : ''}">${d.text.replace(/\n/g, '<br>')}</div>
                           ${d.text.length > 200 ? `<button onclick="expandMsg('${messageId}')" style="background:none;border:none;color:var(--accent-blue);font-size:0.75rem;font-weight:700;padding:4px 0;cursor:pointer;font-family:inherit;" id="expandBtn_${messageId}">See more ↓</button>` : ''}
                         </div>
                         ${actionButtons}
@@ -2859,7 +3018,7 @@ let sessionDuration = 25 * 60;      // store current session length
   };
 
   let savedScrollLeft = null;
-  const renderChart = () => {
+  window.renderChart = () => {
     try {
       if(typeof Chart === 'undefined') return;
       const wrapper = document.getElementById('scrollWrapper'); if (wrapper) savedScrollLeft = wrapper.scrollLeft;
@@ -3259,6 +3418,7 @@ updateStopwatchDisplay();
                 studyLogs = d.studyLogs || {};
                 userSettings = d.userSettings || userSettings;
                 stateHistory = d.stateHistory || [];
+                dailyVaultHistory = d.dailyVaultHistory || [];
                 
                 // ✅ নতুন: কাস্টম নাম না থাকলে Google নাম বসান
                 if (!userSettings.customName) {
@@ -3397,12 +3557,105 @@ updateStopwatchDisplay();
   document.getElementById('closeNotificationBtn').onclick = () => document.getElementById('loginNotification').style.display = 'none';
   document.getElementById('closeNameNotificationBtn').onclick = () => document.getElementById('nameNotification').style.display = 'none';
   window.openHistoryModal = () => {
-    const list = document.getElementById('historyList'); list.innerHTML = '';
-    if(stateHistory.length === 0) list.innerHTML = '<div style="color:var(--text-sub); text-align:center;">No history recorded yet.</div>';
-    stateHistory.slice().reverse().forEach((stateObj, idx) => { list.innerHTML += `<div style="background:var(--panel-bg); padding:15px; border-radius:12px; border:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; font-weight:700;"><span>${stateObj.time}</span><button class="login-btn" style="padding:8px 16px; border-radius:8px;" onclick="restoreHistory(${stateHistory.length - 1 - idx})">Restore</button></div>`; });
+    const list = document.getElementById('historyList');
+    list.innerHTML = '';
+    if(dailyVaultHistory.length === 0) {
+      list.innerHTML = '<div style="color:var(--text-sub); text-align:center;">No daily backups yet. Updates save automatically each day.</div>';
+    } else {
+      dailyVaultHistory.slice().reverse().forEach((vaultObj, idx) => {
+        const displayDate = new Date(vaultObj.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+        list.innerHTML += `<div style="background:var(--panel-bg); padding:15px; border-radius:12px; border:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; font-weight:700;">
+          <div>
+            <div>${displayDate}</div>
+            <div style="font-size:0.75rem; color:var(--text-sub); font-weight:500; margin-top:2px;">${vaultObj.time}</div>
+          </div>
+          <button class="login-btn" style="padding:8px 16px; border-radius:8px;" onclick="restoreVaultHistory(${dailyVaultHistory.length - 1 - idx})">Restore</button>
+        </div>`;
+      });
+    }
     toggleElement('historyModal');
   };
-  window.restoreHistory = (idx) => { if(adminMode) return; if(!confirm("Are you sure? Current unsaved state will be lost.")) return; const state = JSON.parse(stateHistory[idx].data); syllabusData = state.syllabus; studyLogs = state.studyLogs; userSettings = state.userSettings || userSettings; applyCustomSettings(); renderUI(); renderHeroDashboard(); renderChart(); document.getElementById('historyModal').style.display = 'none'; silentCloudSave(true); };
+  window.restoreVaultHistory = (idx) => {
+    if(adminMode) return;
+    if(!confirm("Are you sure? Current unsaved state will be lost. This will restore the state from " + new Date(dailyVaultHistory[idx].date).toLocaleDateString() + ".")) return;
+    const state = dailyVaultHistory[idx];
+    syllabusData = state.syllabus;
+    studyLogs = state.studyLogs;
+    userSettings = state.userSettings || userSettings;
+    applyCustomSettings();
+    renderUI();
+    renderHeroDashboard();
+    renderChart();
+    document.getElementById('historyModal').style.display = 'none';
+    silentCloudSave(true);
+  };
+  
+  window.downloadVaultJSON = () => {
+    const vaultData = {
+      exportDate: new Date().toISOString(),
+      version: '2.0',
+      dailyBackups: dailyVaultHistory.map(v => ({
+        date: v.date,
+        timestamp: v.time,
+        data: { syllabus: v.syllabus, studyLogs: v.studyLogs, userSettings: v.userSettings }
+      }))
+    };
+    const dataStr = JSON.stringify(vaultData, null, 2);
+    const blob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `hsc-study-vault-${new Date().toISOString().split('T')[0]}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+  
+  window.importVaultJSON = () => {
+    const fileInput = document.getElementById('vaultFileInput');
+    const file = fileInput.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const vaultData = JSON.parse(e.target.result);
+        if(!vaultData.dailyBackups || !Array.isArray(vaultData.dailyBackups)) {
+          alert('Invalid vault file format.');
+          return;
+        }
+        if(!confirm(`Import ${vaultData.dailyBackups.length} daily backups? This will add them to your vault (last 90 days kept).`)) return;
+        vaultData.dailyBackups.forEach(backup => {
+          const existingIdx = dailyVaultHistory.findIndex(v => v.date === backup.date);
+          if(existingIdx >= 0) {
+            dailyVaultHistory[existingIdx] = {
+              date: backup.date,
+              time: backup.timestamp,
+              syllabus: backup.data.syllabus,
+              studyLogs: backup.data.studyLogs,
+              userSettings: backup.data.userSettings
+            };
+          } else {
+            dailyVaultHistory.push({
+              date: backup.date,
+              time: backup.timestamp,
+              syllabus: backup.data.syllabus,
+              studyLogs: backup.data.studyLogs,
+              userSettings: backup.data.userSettings
+            });
+          }
+        });
+        dailyVaultHistory.sort((a, b) => new Date(a.date) - new Date(b.date));
+        if(dailyVaultHistory.length > 14) dailyVaultHistory = dailyVaultHistory.slice(-90);
+        silentCloudSave(true);
+        openHistoryModal();
+        alert('✅ Vault imported successfully! Your daily backups have been updated.');
+      } catch(err) {
+        console.error('Import error:', err);
+        alert('❌ Failed to import vault file. Make sure it\'s a valid JSON export.');
+      }
+    };
+    reader.readAsText(file);
+    fileInput.value = '';
+  };
   
 
               // Subject Settings Modal Functions
@@ -3582,10 +3835,10 @@ updateStopwatchDisplay();
     if(!body || !btn) return;
     const collapsed = btn.textContent.includes('more');
     if(collapsed) {
-      body.style.display = 'block'; body.style.webkitLineClamp = 'unset'; body.style.overflow = 'visible';
+      body.className = 'msg-expanded';
       btn.textContent = 'See less ↑';
     } else {
-      body.style.display = '-webkit-box'; body.style.webkitLineClamp = '4'; body.style['-webkit-box-orient'] = 'vertical'; body.style.overflow = 'hidden';
+      body.className = 'msg-collapsed';
       btn.textContent = 'See more ↓';
     }
   };
@@ -3715,6 +3968,12 @@ updateStopwatchDisplay();
     userSettings.uiConfigs.navBlur = checked;
     silentCloudSave();
   };
+  window.updateCardTilt = (checked) => {
+    if(!userSettings.uiConfigs) userSettings.uiConfigs = {};
+    userSettings.uiConfigs.cardTilt = checked;
+    applyCardTilt();
+    silentCloudSave();
+  };
   window.updateCardGlass = (checked) => {
     const styleId = 'card-glass-style';
     let el = document.getElementById(styleId);
@@ -3756,9 +4015,26 @@ updateStopwatchDisplay();
     applyBlurTriggerStyle(mode);
 
     // Nav blur
-    if(ui.navBlur === false) { const cb = document.getElementById('tgl_nav_blur'); if(cb) { cb.checked = false; updateNavBlur(false); } }
+    if(ui.navBlur === false || ui.navBlur === undefined) { const cb = document.getElementById('tgl_nav_blur'); if(cb) { cb.checked = false; updateNavBlur(false); } }
     // Card glass
-    if(ui.cardGlass === false) { const cb = document.getElementById('tgl_card_glass'); if(cb) { cb.checked = false; updateCardGlass(false); } }
+    if(ui.cardGlass === false || ui.cardGlass === undefined) { const cb = document.getElementById('tgl_card_glass'); if(cb) { cb.checked = false; updateCardGlass(false); } }
+    // Card tilt
+    const tiltCb = document.getElementById('tgl_card_tilt');
+    if(tiltCb) { tiltCb.checked = !!ui.cardTilt; }
+    // Gauge gradient restore
+    if(ui.gaugeGradStart) {
+      const sp = document.getElementById('gauge_outer_start');
+      const ss = document.getElementById('actualGradStart');
+      if(sp) sp.value = ui.gaugeGradStart;
+      if(ss) ss.setAttribute('stop-color', ui.gaugeGradStart);
+    }
+    if(ui.gaugeGradEnd) {
+      const ep = document.getElementById('gauge_outer_end');
+      const es = document.getElementById('actualGradEnd');
+      if(ep) ep.value = ui.gaugeGradEnd;
+      if(es) es.setAttribute('stop-color', ui.gaugeGradEnd);
+    }
+
     // ETA
     const etaOn = ui.etaOn !== false;
     const etaCb = document.getElementById('etaSettingToggle');
@@ -3907,7 +4183,7 @@ updateStopwatchDisplay();
         .floating-badge svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
         .fb-1 { top: -5%; left: -10%; animation: floatA 7s ease-in-out infinite; } .fb-2 { top: 15%; right: -15%; animation: floatB 8s ease-in-out infinite reverse; } .fb-3 { bottom: 10%; left: -12%; animation: floatC 6s ease-in-out infinite; } .fb-4 { bottom: -10%; right: -5%; animation: floatD 9s ease-in-out infinite reverse; }
         @keyframes floatA { 0%, 100% { transform: translateY(0) rotate(-5deg); } 50% { transform: translateY(-20px) rotate(2deg); } } @keyframes floatB { 0%, 100% { transform: translateY(0) rotate(5deg); } 50% { transform: translateY(-25px) rotate(-2deg); } } @keyframes floatC { 0%, 100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(15px) rotate(4deg); } } @keyframes floatD { 0%, 100% { transform: translateY(0) rotate(3deg); } 50% { transform: translateY(-18px) rotate(-3deg); } }
-        @media (max-width: 768px) { .floating-badge { display: flex; } }
+        @media (max-width: 768px) { .floating-badge { display: flex; } .btn { display: none !important; } }
 
         .capabilities-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 1.5rem; width: 100%; perspective: 2000px; }
         .card { flex: 1 1 300px; max-width: 380px; padding: 3rem 2.5rem; background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 24px; text-align: center; backdrop-filter: blur(24px); transform-style: preserve-3d; transition: border-color 0.4s ease; pointer-events: auto; }
