@@ -202,6 +202,7 @@
     /* ----------------- MODALS & SETTINGS ----------------- */
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 10000; display: none; justify-content: center; align-items: center; padding: 20px; }
     .modal-card { background: var(--card-bg); backdrop-filter: blur(4px); width: 100%; max-width: 450px; border-radius: 28px; padding: 30px; border: 1px solid var(--border); box-shadow: 0 25px 60px rgba(0,0,0,0.3); display: flex; flex-direction: column; gap: 15px; animation: modalIn 0.2s ease-out; max-height: 90vh; overflow-y: auto; }
+    #expandedChatModal { padding: 0 !important; }
     @keyframes modalIn { from { opacity: 0; transform: translateY(20px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
     
     .settings-group { background: var(--panel-bg); padding: 15px; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 5px; }
@@ -238,7 +239,19 @@
     .chapter-bar-container { display: flex; flex-direction: column; align-items: center; flex: 1; gap: 4px; min-width: 0; position: relative; cursor: pointer; }
                 
 
-          .chapter-bar { width: 100%; height: 6px; border-radius: 3px; transition: width 0.5s ease, background 0.5s ease; border: none; outline: none; }
+    .chapter-bar { width: 100%; height: 6px; border-radius: 3px; transition: width 0.5s ease, background 0.5s ease, box-shadow 0.5s ease; border: none; outline: none; }
+
+    /* Pulse / shimmer animation for chapter bars */
+    @keyframes barPulse {
+      0%   { opacity: 1; }
+      50%  { opacity: 0.55; }
+      100% { opacity: 1; }
+    }
+    .bar-pulse-anim { animation: barPulse 1.8s ease-in-out infinite; }
+
+    /* Bar style mode buttons */
+    .bar-style-btn { display:flex !important; align-items:center; justify-content:center; }
+    .bar-style-btn.active { background: var(--accent-blue) !important; color: #fff !important; border-color: var(--accent-blue) !important; }
 
 
     .chapter-number { font-size: 0.65rem; font-weight: 700; color: var(--text-sub); line-height: 1; }
@@ -1256,18 +1269,22 @@ a, button, .btn-small, .login-btn, .float-btn, .float-tool-btn,
         <!-- Gauge Ring Gradient -->
         <div class="settings-group">
           <h4 style="margin:0 0 10px 0;color:var(--accent-blue);">🎯 Target Ring Gradient</h4>
-          <div class="settings-row"><span>🔴 Outer Ring Start</span><input type="color" id="gauge_outer_start" class="color-picker" value="#f97316" onchange="updateGaugeGradient()"></div>
-          <div class="settings-row" style="border:none;"><span>🟠 Outer Ring End</span><input type="color" id="gauge_outer_end" class="color-picker" value="#fb923c" onchange="updateGaugeGradient()"></div>
+          <div class="settings-row"><span>🔴 Outer Start</span><input type="color" id="gauge_outer_start" class="color-picker" value="#f97316" onchange="updateGaugeGradient()"></div>
+          <div class="settings-row"><span>🟠 Outer End</span><input type="color" id="gauge_outer_end" class="color-picker" value="#fb923c" onchange="updateGaugeGradient()"></div>
+          <div class="settings-row"><span>🔵 Inner Start</span><input type="color" id="gauge_inner_start" class="color-picker" value="#06b6d4" onchange="updateGaugeGradient()"></div>
+          <div class="settings-row" style="border:none;"><span>🟣 Inner End</span><input type="color" id="gauge_inner_end" class="color-picker" value="#6366f1" onchange="updateGaugeGradient()"></div>
           <button class="btn-small" style="width:100%;margin-top:10px;" onclick="resetGaugeGradient()">↺ Reset Ring Colors</button>
         </div>
 
-        <!-- Chapter Bar Gradient -->
+        <!-- Chapter Bar Style Mode -->
         <div class="settings-group">
-          <h4 style="margin:0 0 10px 0;color:var(--accent-blue);">📊 Chapter Bar Style</h4>
-          <div class="settings-row"><span>Gradient Fill</span><input type="checkbox" id="tgl_gradient_bars" onchange="updateUIToggles()" style="width:18px;height:18px;cursor:pointer;"></div>
-          <div class="settings-row"><span>Start Color</span><input type="color" id="cbar_start" class="color-picker" onchange="updateChapterBarColors()"></div>
-          <div class="settings-row"><span>Mid Color</span><input type="color" id="cbar_mid" class="color-picker" onchange="updateChapterBarColors()"></div>
-          <div class="settings-row" style="border:none;"><span>End Color</span><input type="color" id="cbar_end" class="color-picker" onchange="updateChapterBarColors()"></div>
+          <h4 style="margin:0 0 12px 0;color:var(--accent-blue);">📊 Chapter Bar Style</h4>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;" id="barStyleGrid">
+            <button class="btn-small bar-style-btn" id="bsm_classic"   onclick="setBarStyleMode('classic')"   style="padding:10px 6px;font-size:0.78rem;flex-direction:column;gap:3px;height:auto;">🟢 Classic<span style="font-size:0.65rem;font-weight:500;opacity:0.7;">Status colors</span></button>
+            <button class="btn-small bar-style-btn" id="bsm_neon"      onclick="setBarStyleMode('neon')"      style="padding:10px 6px;font-size:0.78rem;flex-direction:column;gap:3px;height:auto;">💜 Neon Glow<span style="font-size:0.65rem;font-weight:500;opacity:0.7;">Glowing bars</span></button>
+            <button class="btn-small bar-style-btn" id="bsm_spectrum"  onclick="setBarStyleMode('spectrum')"  style="padding:10px 6px;font-size:0.78rem;flex-direction:column;gap:3px;height:auto;">🌈 Spectrum<span style="font-size:0.65rem;font-weight:500;opacity:0.7;">Unique hues</span></button>
+            <button class="btn-small bar-style-btn" id="bsm_pulse"     onclick="setBarStyleMode('pulse')"     style="padding:10px 6px;font-size:0.78rem;flex-direction:column;gap:3px;height:auto;">✨ Pulse<span style="font-size:0.65rem;font-weight:500;opacity:0.7;">Shimmer effect</span></button>
+          </div>
         </div>
 
         <!-- UI Toggles -->
@@ -1825,13 +1842,13 @@ a, button, .btn-small, .login-btn, .float-btn, .float-tool-btn,
       <div class="gauge-container">
         <svg class="gauge-svg" viewBox="0 0 120 120">
           <defs>
-            <linearGradient id="timeGradient" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#06b6d4" /><stop offset="100%" stop-color="#6366f1" /></linearGradient>
+            <linearGradient id="timeGradient" x1="0%" y1="0%" x2="100%" y2="100%"><stop id="timeGradStart" offset="0%" stop-color="#06b6d4" /><stop id="timeGradEnd" offset="100%" stop-color="#6366f1" /></linearGradient>
             <linearGradient id="actualGradient" x1="0%" y1="0%" x2="100%" y2="100%"><stop id="actualGradStart" offset="0%" stop-color="#f97316" /><stop id="actualGradEnd" offset="100%" stop-color="#fb923c" /></linearGradient>
           </defs>
           <circle class="circle-bg" cx="60" cy="60" r="50" stroke-width="12"></circle>
           <circle class="circle-bg" cx="60" cy="60" r="38" stroke-width="8" opacity="0.3"></circle>
           <circle id="arc_actual" class="circle-prog prog-actual" cx="60" cy="60" r="50" stroke="url(#actualGradient)"></circle>
-          <circle id="arc_time" class="circle-prog prog-time" cx="60" cy="60" r="38"></circle>
+          <circle id="arc_time" class="circle-prog prog-time" cx="60" cy="60" r="38" stroke="url(#timeGradient)"></circle>
         </svg>
         <div style="position:absolute; text-align:center;">
           <span style="font-size:0.75rem; font-weight:800; color:var(--text-sub); letter-spacing: 1.5px; text-transform: uppercase;">Target</span><br>
@@ -1991,8 +2008,7 @@ const firebaseConfig = {
     fbLink: "",
     barColors: { done: '#10b981', running: '#FFD400', pending: '#ef4444' },
     graphColors: { self: '#2563eb', class: '#ef4444', total: '#0f172a' },
-    uiConfigs: { showOrbs: true, showVibes: true, gradientBars: false, navBlur: false, cardGlass: false },
-    chapterBarColors: { start: '#ef4444', mid: '#f59e0b', end: '#10b981' }
+    uiConfigs: { showOrbs: true, showVibes: true, barStyleMode: 'classic', navBlur: false, cardGlass: false }
   };
   
   let chronosChartInstance = null;
@@ -2201,10 +2217,9 @@ let sessionDuration = 25 * 60;      // store current session length
 
       window.updateUIToggles = () => {
           if(adminMode) return;
-          if(!userSettings.uiConfigs) userSettings.uiConfigs = { showOrbs: true, showVibes: true, gradientBars: false };
+          if(!userSettings.uiConfigs) userSettings.uiConfigs = { showOrbs: true, showVibes: true };
           userSettings.uiConfigs.showOrbs = document.getElementById('tgl_orbs').checked;
           userSettings.uiConfigs.showVibes = document.getElementById('tgl_vibes').checked;
-          userSettings.uiConfigs.gradientBars = document.getElementById('tgl_gradient_bars').checked;
           document.getElementById('orb1').style.display = userSettings.uiConfigs.showOrbs ? 'block' : 'none';
           document.getElementById('orb2').style.display = userSettings.uiConfigs.showOrbs ? 'block' : 'none';
           renderUI(); silentCloudSave();
@@ -2283,17 +2298,17 @@ let sessionDuration = 25 * 60;      // store current session length
 
 
 
-                  window.updateChapterBarColors = () => {
+                  // ── Bar Style Mode ──
+                  window.setBarStyleMode = (mode) => {
                       if (adminMode) return;
-                      if (!userSettings.chapterBarColors) userSettings.chapterBarColors = { start: '#ef4444', mid: '#f59e0b', end: '#10b981' };
-                      userSettings.chapterBarColors.start = document.getElementById('cbar_start').value;
-                      userSettings.chapterBarColors.mid = document.getElementById('cbar_mid').value;
-                      userSettings.chapterBarColors.end = document.getElementById('cbar_end').value;
-                      if (userSettings.uiConfigs.gradientBars) {
-                          renderUI();
-                          // update all mini bars immediately
-                          syllabusData.forEach((_, sIdx) => window.updateSubjectVibeBar(sIdx));
-                      }
+                      if (!userSettings.uiConfigs) userSettings.uiConfigs = {};
+                      userSettings.uiConfigs.barStyleMode = mode;
+                      // Update button highlights
+                      document.querySelectorAll('.bar-style-btn').forEach(b => b.classList.remove('active'));
+                      const activeBtn = document.getElementById('bsm_' + mode);
+                      if (activeBtn) activeBtn.classList.add('active');
+                      renderUI();
+                      syllabusData.forEach((_, sIdx) => window.updateSubjectVibeBar(sIdx));
                       silentCloudSave();
                   };
 
@@ -2323,15 +2338,14 @@ let sessionDuration = 25 * 60;      // store current session length
     
     document.getElementById('tgl_orbs').checked = userSettings.uiConfigs.showOrbs;
     document.getElementById('tgl_vibes').checked = userSettings.uiConfigs.showVibes;
-            document.getElementById('tgl_gradient_bars').checked = userSettings.uiConfigs.gradientBars || false;
     document.getElementById('orb1').style.display = userSettings.uiConfigs.showOrbs ? 'block' : 'none';
     document.getElementById('orb2').style.display = userSettings.uiConfigs.showOrbs ? 'block' : 'none';
-    
-            // Chapter bar colors
-            if (!userSettings.chapterBarColors) userSettings.chapterBarColors = { start: '#ef4444', mid: '#f59e0b', end: '#10b981' };
-            document.getElementById('cbar_start').value = userSettings.chapterBarColors.start;
-            document.getElementById('cbar_mid').value = userSettings.chapterBarColors.mid;
-            document.getElementById('cbar_end').value = userSettings.chapterBarColors.end;
+
+    // Restore bar style mode button highlight
+    const savedBarMode = userSettings.uiConfigs.barStyleMode || 'classic';
+    document.querySelectorAll('.bar-style-btn').forEach(b => b.classList.remove('active'));
+    const activeBarBtn = document.getElementById('bsm_' + savedBarMode);
+    if (activeBarBtn) activeBarBtn.classList.add('active');
 
 
 
@@ -2380,31 +2394,37 @@ let sessionDuration = 25 * 60;      // store current session length
   // ===== GAUGE GRADIENT FUNCTIONS =====
   window.updateGaugeGradient = () => {
     if(adminMode) return;
-    const startColor = document.getElementById('gauge_outer_start').value;
-    const endColor = document.getElementById('gauge_outer_end').value;
-    const startStop = document.getElementById('actualGradStart');
-    const endStop = document.getElementById('actualGradEnd');
-    if(startStop) startStop.setAttribute('stop-color', startColor);
-    if(endStop) endStop.setAttribute('stop-color', endColor);
+    const outerStart = document.getElementById('gauge_outer_start').value;
+    const outerEnd   = document.getElementById('gauge_outer_end').value;
+    const innerStart = document.getElementById('gauge_inner_start').value;
+    const innerEnd   = document.getElementById('gauge_inner_end').value;
+    const ss = document.getElementById('actualGradStart'); if(ss) ss.setAttribute('stop-color', outerStart);
+    const se = document.getElementById('actualGradEnd');   if(se) se.setAttribute('stop-color', outerEnd);
+    const ts = document.getElementById('timeGradStart');   if(ts) ts.setAttribute('stop-color', innerStart);
+    const te = document.getElementById('timeGradEnd');     if(te) te.setAttribute('stop-color', innerEnd);
     if(!userSettings.uiConfigs) userSettings.uiConfigs = {};
-    userSettings.uiConfigs.gaugeGradStart = startColor;
-    userSettings.uiConfigs.gaugeGradEnd = endColor;
+    userSettings.uiConfigs.gaugeGradStart      = outerStart;
+    userSettings.uiConfigs.gaugeGradEnd        = outerEnd;
+    userSettings.uiConfigs.gaugeInnerGradStart = innerStart;
+    userSettings.uiConfigs.gaugeInnerGradEnd   = innerEnd;
     silentCloudSave();
   };
   window.resetGaugeGradient = () => {
     if(adminMode) return;
-    const defStart = '#f97316'; const defEnd = '#fb923c';
-    const startPicker = document.getElementById('gauge_outer_start');
-    const endPicker = document.getElementById('gauge_outer_end');
-    if(startPicker) startPicker.value = defStart;
-    if(endPicker) endPicker.value = defEnd;
-    const startStop = document.getElementById('actualGradStart');
-    const endStop = document.getElementById('actualGradEnd');
-    if(startStop) startStop.setAttribute('stop-color', defStart);
-    if(endStop) endStop.setAttribute('stop-color', defEnd);
+    const dOS = '#f97316', dOE = '#fb923c', dIS = '#06b6d4', dIE = '#6366f1';
+    const osp = document.getElementById('gauge_outer_start'); if(osp) osp.value = dOS;
+    const oep = document.getElementById('gauge_outer_end');   if(oep) oep.value = dOE;
+    const isp = document.getElementById('gauge_inner_start'); if(isp) isp.value = dIS;
+    const iep = document.getElementById('gauge_inner_end');   if(iep) iep.value = dIE;
+    const ss = document.getElementById('actualGradStart'); if(ss) ss.setAttribute('stop-color', dOS);
+    const se = document.getElementById('actualGradEnd');   if(se) se.setAttribute('stop-color', dOE);
+    const ts = document.getElementById('timeGradStart');   if(ts) ts.setAttribute('stop-color', dIS);
+    const te = document.getElementById('timeGradEnd');     if(te) te.setAttribute('stop-color', dIE);
     if(!userSettings.uiConfigs) userSettings.uiConfigs = {};
-    userSettings.uiConfigs.gaugeGradStart = defStart;
-    userSettings.uiConfigs.gaugeGradEnd = defEnd;
+    userSettings.uiConfigs.gaugeGradStart      = dOS;
+    userSettings.uiConfigs.gaugeGradEnd        = dOE;
+    userSettings.uiConfigs.gaugeInnerGradStart = dIS;
+    userSettings.uiConfigs.gaugeInnerGradEnd   = dIE;
     silentCloudSave();
   };
   window.updateGraphColors = () => { if(adminMode) return; userSettings.graphColors.self = document.getElementById('gcol_self').value; userSettings.graphColors.class = document.getElementById('gcol_class').value; userSettings.graphColors.total = document.getElementById('gcol_total').value; applyCustomSettings(); renderChart(); silentCloudSave(); };
@@ -2458,8 +2478,8 @@ let sessionDuration = 25 * 60;      // store current session length
 
 
 
-    let useGradient = userSettings.uiConfigs.gradientBars || false;
-    
+    let barMode = (userSettings.uiConfigs && userSettings.uiConfigs.barStyleMode) || 'classic';
+
     const updateProgText = (pProgTxt, prog) => {
         if(!pProgTxt) return;
         let color = prog == 100 ? 'var(--color-done)' : (prog>0 ? 'var(--color-running)' : 'var(--color-pending)');
@@ -2467,43 +2487,58 @@ let sessionDuration = 25 * 60;      // store current session length
         pProgTxt.style.color = color;
     };
 
+    // Helper: get bar style per mode
+    const getBarStyle = (eff, barIndex, totalBars) => {
+        if (barMode === 'neon') {
+            let h = eff == 100 ? 145 : (eff >= 40 ? 45 : 0);
+            let col = `hsl(${h}, 90%, 55%)`;
+            let glow = `hsl(${h}, 90%, 65%)`;
+            return { bg: col, shadow: `0 0 6px 1px ${glow}`, width: '100%' };
+        } else if (barMode === 'spectrum') {
+            // Each bar gets a unique hue spread across the spectrum
+            let hue = Math.round((barIndex / Math.max(totalBars - 1, 1)) * 270); // 0 red → 270 blue-violet
+            let lightness = eff == 100 ? 52 : (eff >= 40 ? 58 : 65);
+            let sat = eff == 100 ? 85 : (eff >= 40 ? 75 : 60);
+            return { bg: `hsl(${hue}, ${sat}%, ${lightness}%)`, shadow: 'none', width: '100%' };
+        } else if (barMode === 'pulse') {
+            let col = eff == 100 ? 'var(--color-done)' : (eff >= 40 ? 'var(--color-running)' : 'var(--color-pending)');
+            return { bg: col, shadow: 'none', width: '100%', pulse: eff > 0 && eff < 100 };
+        } else {
+            // classic
+            let col = eff == 100 ? 'var(--color-done)' : (eff >= 40 ? 'var(--color-running)' : 'var(--color-pending)');
+            return { bg: col, shadow: 'none', width: '100%' };
+        }
+    };
+
+    const applyBarStyle = (cBar, eff, barIndex, totalBars) => {
+        let s = getBarStyle(eff, barIndex, totalBars);
+        cBar.style.background = s.bg;
+        cBar.style.boxShadow = s.shadow || '';
+        cBar.style.width = s.width;
+        if (s.pulse) {
+            cBar.classList.add('bar-pulse-anim');
+        } else {
+            cBar.classList.remove('bar-pulse-anim');
+        }
+    };
+
     if(sub.hasPapers) {
         sub.papers.forEach((p, pIdx) => {
             updateProgText(document.getElementById(`paper_prog_${sIdx}_${pIdx}`), calculateContainerProgress(p.chapters));
+            let total = p.chapters.length;
             p.chapters.forEach((c, cIdx) => {
                 let eff = getEffectiveProgress(c);
                 let cBar = document.getElementById(`mini_bar_${sIdx}_${pIdx}_${cIdx}`);
-                if(cBar) {
-                    if (useGradient) {
-                        let fillWidth = Math.max(2, eff);
-                        cBar.style.width = fillWidth + '%';
-                        let cColors = userSettings.chapterBarColors || { start: '#ef4444', mid: '#f59e0b', end: '#10b981' };
-                              cBar.style.background = `linear-gradient(90deg, ${cColors.start} 0%, ${cColors.mid} 50%, ${cColors.end} 100%)`;
-                    } else {
-                        let bColor = eff == 100 ? 'var(--color-done)' : (eff >= 40 ? 'var(--color-running)' : 'var(--color-pending)');
-                        cBar.style.background = bColor;
-                        cBar.style.width = '100%'; // classic mode full width
-                    }
-                }
+                if(cBar) applyBarStyle(cBar, eff, cIdx, total);
             });
         });
     } else {
         updateProgText(document.getElementById(`paper_prog_${sIdx}_null`), calculateContainerProgress(sub.chapters));
+        let total = sub.chapters.length;
         sub.chapters.forEach((c, cIdx) => {
             let eff = getEffectiveProgress(c);
             let cBar = document.getElementById(`mini_bar_${sIdx}_null_${cIdx}`);
-            if(cBar) {
-                if (useGradient) {
-                    let fillWidth = Math.max(2, eff);
-                    cBar.style.width = fillWidth + '%';
-                    let cColors = userSettings.chapterBarColors || { start: '#ef4444', mid: '#f59e0b', end: '#10b981' };
-                  cBar.style.background = `linear-gradient(90deg, ${cColors.start} 0%, ${cColors.mid} 50%, ${cColors.end} 100%)`;
-                } else {
-                    let bColor = eff == 100 ? 'var(--color-done)' : (eff >= 40 ? 'var(--color-running)' : 'var(--color-pending)');
-                    cBar.style.background = bColor;
-                    cBar.style.width = '100%';
-                }
-            }
+            if(cBar) applyBarStyle(cBar, eff, cIdx, total);
         });
     }
 };
@@ -2572,7 +2607,7 @@ let sessionDuration = 25 * 60;      // store current session length
     toggleElement(`mega_${sIdx}_${pIdx}_${cIdx}`);
   };
 
-  window.updateLocalVal = (el, s, p, c, key) => { let val = parseInt(el.value)||0; let disp = document.getElementById(`disp_${s}_${p}_${c}_${key}`); if(disp) disp.innerText = val; };
+  window.updateLocalVal = (el, s, p, c, key) => { let val = parseInt(el.value)||0; let disp = document.getElementById(`disp_${s}_${p}_${c}_${key}`); if(disp) { if(key === 'doneDL' || key === 'doneFRB' || key === 'doneOS') { let chap = p !== null ? syllabusData[s].papers[p].chapters[c] : syllabusData[s].chapters[c]; let totalKey = key === 'doneDL' ? 'totalDL' : (key === 'doneFRB' ? 'totalFRB' : 'totalOS'); disp.innerText = val + '/' + (chap[totalKey] || 0); } else { disp.innerText = val; } } };
   
   window.commitVal = (el, s, p, c, key) => { 
       if(adminMode) return; 
@@ -2597,7 +2632,7 @@ let sessionDuration = 25 * 60;      // store current session length
       let rng = document.getElementById(`rng_${s}_${p}_${c}_${key}`);
       if(rng) rng.value = chap[key];
       let disp = document.getElementById(`disp_${s}_${p}_${c}_${key}`);
-      if(disp) disp.innerText = chap[key];
+      if(disp) { if(key === 'doneDL' || key === 'doneFRB' || key === 'doneOS') { let totalKey = key === 'doneDL' ? 'totalDL' : (key === 'doneFRB' ? 'totalFRB' : 'totalOS'); disp.innerText = chap[key] + '/' + (chap[totalKey] || 0); } else { disp.innerText = chap[key]; } }
       
       let hdr = document.getElementById(`prog_hdr_${s}_${p}_${c}`);
       if(hdr) {
@@ -2613,7 +2648,7 @@ let sessionDuration = 25 * 60;      // store current session length
   window.stepTarget = (s, p, c, key, delta) => { 
       if (adminMode) return; 
       let chap = p !== null ? syllabusData[s].papers[p].chapters[c] : syllabusData[s].chapters[c]; 
-      let max = key==='totalDL'?40:(key==='totalFRB'?25:(key==='totalOS'?2:20)); 
+      let max = key==='totalDL'?200:(key==='totalFRB'?100:(key==='totalOS'?50:(key==='totalQS'?50:20))); 
       chap[key] = Math.min(max, Math.max(0, (chap[key]||0)+delta)); 
       
       let dispTxt = document.getElementById(`tgt_disp_${s}_${p}_${c}_${key}`);
@@ -2626,7 +2661,20 @@ let sessionDuration = 25 * 60;      // store current session length
       
       let rngKey = key === 'totalQS' ? 'solvedQS' : key.replace('total', 'done');
       let rng = document.getElementById(`rng_${s}_${p}_${c}_${rngKey}`);
-      if(rng) rng.max = chap[key]; 
+      if(rng) rng.max = chap[key];
+      // clamp done value so it never exceeds new total
+      if(rngKey !== 'solvedQS') { if(chap[rngKey] > chap[key]) { chap[rngKey] = chap[key]; if(rng) rng.value = chap[key]; } }
+      else { if(chap.solvedQS > chap[key]) { chap.solvedQS = chap[key]; if(rng) rng.value = chap[key]; } }
+      
+      // refresh the done/total header display span
+      let doneDispKey = key === 'totalQS' ? 'solvedQS' : key.replace('total','done');
+      let disp = document.getElementById(`disp_${s}_${p}_${c}_${doneDispKey}`);
+      if(disp) {
+        if(key === 'totalDL') disp.innerText = chap.doneDL + '/' + chap.totalDL;
+        else if(key === 'totalFRB') disp.innerText = chap.doneFRB + '/' + chap.totalFRB;
+        else if(key === 'totalOS') disp.innerText = chap.doneOS + '/' + chap.totalOS;
+        else if(key === 'totalQS') disp.innerText = chap.solvedQS;
+      }
       
       let hdr = document.getElementById(`prog_hdr_${s}_${p}_${c}`);
       if(hdr) { hdr.innerText = getFormattedProgress(chap); hdr.style.color = getEffectiveProgress(chap)>=80 ? 'var(--color-done)' : 'var(--accent-blue)'; }
@@ -2788,10 +2836,10 @@ let sessionDuration = 25 * 60;      // store current session length
               <label style="font-size:0.8rem; font-weight:700; display:flex; align-items:center; gap:4px; cursor:pointer;"><input type="checkbox" ${chap.tracks.frb?'checked':''} onchange="setChapTrack(${sIdx},${pIdx},${cIdx},'frb',this.checked)"> FRB</label>
               <label style="font-size:0.8rem; font-weight:700; display:flex; align-items:center; gap:4px; cursor:pointer;"><input type="checkbox" ${chap.tracks.os?'checked':''} onchange="setChapTrack(${sIdx},${pIdx},${cIdx},'os',this.checked)"> 1-Shot</label>
             </div>`;
-            if(chap.tracks.dl) html += `<div style="background:var(--card-bg); border:1px solid var(--border); padding:10px; border-radius:8px;"><div style="display:flex; justify-content:space-between; font-size:0.75rem; font-weight:700; color:var(--text-sub); margin-bottom:5px;"><span>Detailed Classes (<span id="lbl_${sIdx}_${pIdx}_${cIdx}_totalDL">${chap.totalDL}</span>)</span><span id="disp_${sIdx}_${pIdx}_${cIdx}_doneDL">${chap.doneDL}</span></div><div style="display:flex; gap:8px;"><button class="step-btn" onclick="stepValue(${sIdx},${pIdx},${cIdx},'doneDL',-1)">-</button><input type="range" id="rng_${sIdx}_${pIdx}_${cIdx}_doneDL" min="0" max="${chap.totalDL}" value="${chap.doneDL}" oninput="updateLocalVal(this, ${sIdx},${pIdx},${cIdx},'doneDL')" onchange="commitVal(this, ${sIdx},${pIdx},${cIdx},'doneDL')"><button class="step-btn" onclick="stepValue(${sIdx},${pIdx},${cIdx},'doneDL',1)">+</button></div></div>`;
-            if(chap.tracks.frb) html += `<div style="background:var(--card-bg); border:1px solid var(--border); padding:10px; border-radius:8px;"><div style="display:flex; justify-content:space-between; font-size:0.75rem; font-weight:700; color:var(--text-sub); margin-bottom:5px;"><span>FRB Classes (<span id="lbl_${sIdx}_${pIdx}_${cIdx}_totalFRB">${chap.totalFRB}</span>)</span><span id="disp_${sIdx}_${pIdx}_${cIdx}_doneFRB">${chap.doneFRB}</span></div><div style="display:flex; gap:8px;"><button class="step-btn" onclick="stepValue(${sIdx},${pIdx},${cIdx},'doneFRB',-1)">-</button><input type="range" id="rng_${sIdx}_${pIdx}_${cIdx}_doneFRB" min="0" max="${chap.totalFRB}" value="${chap.doneFRB}" oninput="updateLocalVal(this, ${sIdx},${pIdx},${cIdx},'doneFRB')" onchange="commitVal(this, ${sIdx},${pIdx},${cIdx},'doneFRB')"><button class="step-btn" onclick="stepValue(${sIdx},${pIdx},${cIdx},'doneFRB',1)">+</button></div></div>`;
-            if(chap.tracks.os) html += `<div style="background:var(--card-bg); border:1px solid var(--border); padding:10px; border-radius:8px;"><div style="display:flex; justify-content:space-between; font-size:0.75rem; font-weight:700; color:var(--text-sub); margin-bottom:5px;"><span>OneShot (<span id="lbl_${sIdx}_${pIdx}_${cIdx}_totalOS">${chap.totalOS}</span>)</span><span id="disp_${sIdx}_${pIdx}_${cIdx}_doneOS">${chap.doneOS}</span></div><div style="display:flex; gap:8px;"><button class="step-btn" onclick="stepValue(${sIdx},${pIdx},${cIdx},'doneOS',-1)">-</button><input type="range" id="rng_${sIdx}_${pIdx}_${cIdx}_doneOS" min="0" max="${chap.totalOS}" value="${chap.doneOS}" oninput="updateLocalVal(this, ${sIdx},${pIdx},${cIdx},'doneOS')" onchange="commitVal(this, ${sIdx},${pIdx},${cIdx},'doneOS')"><button class="step-btn" onclick="stepValue(${sIdx},${pIdx},${cIdx},'doneOS',1)">+</button></div></div>`;
-            html += `<div style="background:var(--card-bg); border:1px solid var(--border); padding:10px; border-radius:8px; display:flex; justify-content:space-between; align-items:center;"><span style="font-size:0.75rem; font-weight:700; color:var(--text-sub);">Board Qs (<span id="lbl_${sIdx}_${pIdx}_${cIdx}_totalQS">${chap.totalQS}</span>)</span><div style="display:flex; gap:4px;"><button class="step-btn" style="width:24px;height:24px;font-size:0.8rem;" onclick="stepValue(${sIdx},${pIdx},${cIdx},'solvedQS',-1)">-</button><input type="range" id="rng_${sIdx}_${pIdx}_${cIdx}_solvedQS" min="0" max="${chap.totalQS}" value="${chap.solvedQS}" oninput="updateLocalVal(this, ${sIdx},${pIdx},${cIdx},'solvedQS')" onchange="commitVal(this, ${sIdx},${pIdx},${cIdx},'solvedQS')" style="width:70px;"><button class="step-btn" style="width:24px;height:24px;font-size:0.8rem;" onclick="stepValue(${sIdx},${pIdx},${cIdx},'solvedQS',1)">+</button><span id="disp_${sIdx}_${pIdx}_${cIdx}_solvedQS" style="font-weight:bold;margin-left:5px;">${chap.solvedQS}</span></div></div>`;
+            if(chap.tracks.dl) html += `<div style="background:var(--card-bg); border:1px solid var(--border); padding:10px; border-radius:8px;"><div style="display:flex; justify-content:space-between; align-items:center; font-size:0.75rem; font-weight:700; color:var(--text-sub); margin-bottom:5px;"><span>Detailed Classes (<span id="lbl_${sIdx}_${pIdx}_${cIdx}_totalDL">${chap.totalDL}</span>)</span><div style="display:flex; align-items:center; gap:4px;"><span style="color:var(--text-sub); font-weight:700;">Total</span><button class="step-btn" style="width:22px;height:22px;font-size:0.8rem;" onclick="stepTarget(${sIdx},${pIdx},${cIdx},'totalDL',-1)">-</button><button class="step-btn" style="width:22px;height:22px;font-size:0.8rem;" onclick="stepTarget(${sIdx},${pIdx},${cIdx},'totalDL',1)">+</button><span id="disp_${sIdx}_${pIdx}_${cIdx}_doneDL" style="font-weight:800; color:var(--text-main); min-width:28px; text-align:right;">${chap.doneDL}/${chap.totalDL}</span></div></div><div style="display:flex; gap:8px;"><button class="step-btn" onclick="stepValue(${sIdx},${pIdx},${cIdx},'doneDL',-1)">-</button><input type="range" id="rng_${sIdx}_${pIdx}_${cIdx}_doneDL" min="0" max="${chap.totalDL}" value="${chap.doneDL}" oninput="updateLocalVal(this, ${sIdx},${pIdx},${cIdx},'doneDL')" onchange="commitVal(this, ${sIdx},${pIdx},${cIdx},'doneDL')"><button class="step-btn" onclick="stepValue(${sIdx},${pIdx},${cIdx},'doneDL',1)">+</button></div></div>`;
+            if(chap.tracks.frb) html += `<div style="background:var(--card-bg); border:1px solid var(--border); padding:10px; border-radius:8px;"><div style="display:flex; justify-content:space-between; align-items:center; font-size:0.75rem; font-weight:700; color:var(--text-sub); margin-bottom:5px;"><span>FRB Classes (<span id="lbl_${sIdx}_${pIdx}_${cIdx}_totalFRB">${chap.totalFRB}</span>)</span><div style="display:flex; align-items:center; gap:4px;"><span style="color:var(--text-sub); font-weight:700;">Total</span><button class="step-btn" style="width:22px;height:22px;font-size:0.8rem;" onclick="stepTarget(${sIdx},${pIdx},${cIdx},'totalFRB',-1)">-</button><button class="step-btn" style="width:22px;height:22px;font-size:0.8rem;" onclick="stepTarget(${sIdx},${pIdx},${cIdx},'totalFRB',1)">+</button><span id="disp_${sIdx}_${pIdx}_${cIdx}_doneFRB" style="font-weight:800; color:var(--text-main); min-width:28px; text-align:right;">${chap.doneFRB}/${chap.totalFRB}</span></div></div><div style="display:flex; gap:8px;"><button class="step-btn" onclick="stepValue(${sIdx},${pIdx},${cIdx},'doneFRB',-1)">-</button><input type="range" id="rng_${sIdx}_${pIdx}_${cIdx}_doneFRB" min="0" max="${chap.totalFRB}" value="${chap.doneFRB}" oninput="updateLocalVal(this, ${sIdx},${pIdx},${cIdx},'doneFRB')" onchange="commitVal(this, ${sIdx},${pIdx},${cIdx},'doneFRB')"><button class="step-btn" onclick="stepValue(${sIdx},${pIdx},${cIdx},'doneFRB',1)">+</button></div></div>`;
+            if(chap.tracks.os) html += `<div style="background:var(--card-bg); border:1px solid var(--border); padding:10px; border-radius:8px;"><div style="display:flex; justify-content:space-between; align-items:center; font-size:0.75rem; font-weight:700; color:var(--text-sub); margin-bottom:5px;"><span>OneShot (<span id="lbl_${sIdx}_${pIdx}_${cIdx}_totalOS">${chap.totalOS}</span>)</span><div style="display:flex; align-items:center; gap:4px;"><span style="color:var(--text-sub); font-weight:700;">Total</span><button class="step-btn" style="width:22px;height:22px;font-size:0.8rem;" onclick="stepTarget(${sIdx},${pIdx},${cIdx},'totalOS',-1)">-</button><button class="step-btn" style="width:22px;height:22px;font-size:0.8rem;" onclick="stepTarget(${sIdx},${pIdx},${cIdx},'totalOS',1)">+</button><span id="disp_${sIdx}_${pIdx}_${cIdx}_doneOS" style="font-weight:800; color:var(--text-main); min-width:28px; text-align:right;">${chap.doneOS}/${chap.totalOS}</span></div></div><div style="display:flex; gap:8px;"><button class="step-btn" onclick="stepValue(${sIdx},${pIdx},${cIdx},'doneOS',-1)">-</button><input type="range" id="rng_${sIdx}_${pIdx}_${cIdx}_doneOS" min="0" max="${chap.totalOS}" value="${chap.doneOS}" oninput="updateLocalVal(this, ${sIdx},${pIdx},${cIdx},'doneOS')" onchange="commitVal(this, ${sIdx},${pIdx},${cIdx},'doneOS')"><button class="step-btn" onclick="stepValue(${sIdx},${pIdx},${cIdx},'doneOS',1)">+</button></div></div>`;
+            html += `<div style="background:var(--card-bg); border:1px solid var(--border); padding:10px; border-radius:8px;"><div style="display:flex; justify-content:space-between; align-items:center; font-size:0.75rem; font-weight:700; color:var(--text-sub); margin-bottom:5px;"><span>Board Qs (<span id="lbl_${sIdx}_${pIdx}_${cIdx}_totalQS">${chap.totalQS}</span>)</span><div style="display:flex; align-items:center; gap:4px;"><span style="color:var(--text-sub); font-weight:700;">Total</span><button class="step-btn" style="width:22px;height:22px;font-size:0.8rem;" onclick="stepTarget(${sIdx},${pIdx},${cIdx},'totalQS',-1)">-</button><button class="step-btn" style="width:22px;height:22px;font-size:0.8rem;" onclick="stepTarget(${sIdx},${pIdx},${cIdx},'totalQS',1)">+</button><span id="disp_${sIdx}_${pIdx}_${cIdx}_solvedQS" style="font-weight:800; color:var(--text-main); min-width:28px; text-align:right;">${chap.solvedQS}</span></div></div><div style="display:flex; gap:4px;"><button class="step-btn" style="width:24px;height:24px;font-size:0.8rem;" onclick="stepValue(${sIdx},${pIdx},${cIdx},'solvedQS',-1)">-</button><input type="range" id="rng_${sIdx}_${pIdx}_${cIdx}_solvedQS" min="0" max="${chap.totalQS}" value="${chap.solvedQS}" oninput="updateLocalVal(this, ${sIdx},${pIdx},${cIdx},'solvedQS')" onchange="commitVal(this, ${sIdx},${pIdx},${cIdx},'solvedQS')" style="width:100%;"><button class="step-btn" style="width:24px;height:24px;font-size:0.8rem;" onclick="stepValue(${sIdx},${pIdx},${cIdx},'solvedQS',1)">+</button></div></div>`;
           }
 
           html += `<button class="login-btn" style="width:100%; padding:10px; margin-top:12px; border-radius:10px; font-size:0.85rem;" onclick="silentCloudSave(); renderHeroDashboard();">💾 Update Progress</button>`;
@@ -2820,23 +2868,39 @@ let sessionDuration = 25 * 60;      // store current session length
 
 
 
-            let useGradient = userSettings.uiConfigs.gradientBars || false;
-            let cColors = userSettings.chapterBarColors || { start: '#ef4444', mid: '#f59e0b', end: '#10b981' };
-            let gradBG = `linear-gradient(90deg, ${cColors.start} 0%, ${cColors.mid} 50%, ${cColors.end} 100%)`;
+            let barMode = (userSettings.uiConfigs && userSettings.uiConfigs.barStyleMode) || 'classic';
+
+            // Returns inline style string for a chapter bar
+            const getBarInlineStyle = (eff, barIndex, totalBars) => {
+                if (barMode === 'neon') {
+                    let h = eff == 100 ? 145 : (eff >= 40 ? 45 : 0);
+                    let col = `hsl(${h}, 90%, 55%)`;
+                    let glow = `hsl(${h}, 90%, 65%)`;
+                    return `background:${col}; box-shadow:0 0 6px 1px ${glow};`;
+                } else if (barMode === 'spectrum') {
+                    let hue = Math.round((barIndex / Math.max(totalBars - 1, 1)) * 270);
+                    let sat = eff == 100 ? 85 : (eff >= 40 ? 75 : 60);
+                    let light = eff == 100 ? 52 : (eff >= 40 ? 58 : 65);
+                    return `background:hsl(${hue}, ${sat}%, ${light}%);`;
+                } else if (barMode === 'pulse') {
+                    let col = eff == 100 ? 'var(--color-done)' : (eff >= 40 ? 'var(--color-running)' : 'var(--color-pending)');
+                    return `background:${col};`;
+                } else {
+                    let col = eff == 100 ? 'var(--color-done)' : (eff >= 40 ? 'var(--color-running)' : 'var(--color-pending)');
+                    return `background:${col};`;
+                }
+            };
+
+            const pulseClass = (eff) => (barMode === 'pulse' && eff > 0 && eff < 100) ? ' bar-pulse-anim' : '';
 
             let bars = `<div style="display:flex; gap:4px; margin-bottom:10px; width:100%;">` + paper.chapters.map((c,i) => {
                 let eff = getEffectiveProgress(c);
-                if (useGradient) {
-                    let fillWidth = Math.max(2, eff);
-                    return `<div class="chapter-bar-container" onclick="showChapterTooltip(${sIdx}, ${papIdx === null ? 'null' : papIdx}, ${i}, this)" style="background:var(--border); border-radius:3px; overflow:hidden;">
-                      <div id="mini_bar_${sIdx}_${papIdx}_${i}" class="chapter-bar" style="width:${fillWidth}%; background: ${gradBG}; transition: width 0.5s ease;"></div>
-                      <span class="chapter-number">${i+1}</span>
-                    </div>`;
-                } else {
-                    // ক্ল্যাসিক সলিড কালার মোড (আগের মতো)
-                    let bColor = eff == 100 ? 'var(--color-done)' : (eff >= 40 ? 'var(--color-running)' : 'var(--color-pending)');
-                    return `<div class="chapter-bar-container" onclick="showChapterTooltip(${sIdx}, ${papIdx === null ? 'null' : papIdx}, ${i}, this)"><div id="mini_bar_${sIdx}_${papIdx}_${i}" class="chapter-bar" style="background:${bColor}; width:100%;"></div><span class="chapter-number">${i+1}</span></div>`;
-                }
+                let total = paper.chapters.length;
+                let inlineStyle = getBarInlineStyle(eff, i, total);
+                return `<div class="chapter-bar-container" onclick="showChapterTooltip(${sIdx}, ${papIdx === null ? 'null' : papIdx}, ${i}, this)">
+                  <div id="mini_bar_${sIdx}_${papIdx}_${i}" class="chapter-bar${pulseClass(eff)}" style="${inlineStyle} width:100%;"></div>
+                  <span class="chapter-number">${i+1}</span>
+                </div>`;
             }).join('') + `</div>`;
 
 
@@ -4034,6 +4098,18 @@ updateStopwatchDisplay();
       if(ep) ep.value = ui.gaugeGradEnd;
       if(es) es.setAttribute('stop-color', ui.gaugeGradEnd);
     }
+    if(ui.gaugeInnerGradStart) {
+      const ip = document.getElementById('gauge_inner_start');
+      const is_ = document.getElementById('timeGradStart');
+      if(ip) ip.value = ui.gaugeInnerGradStart;
+      if(is_) is_.setAttribute('stop-color', ui.gaugeInnerGradStart);
+    }
+    if(ui.gaugeInnerGradEnd) {
+      const ip = document.getElementById('gauge_inner_end');
+      const ie = document.getElementById('timeGradEnd');
+      if(ip) ip.value = ui.gaugeInnerGradEnd;
+      if(ie) ie.setAttribute('stop-color', ui.gaugeInnerGradEnd);
+    }
 
     // ETA
     const etaOn = ui.etaOn !== false;
@@ -4638,27 +4714,49 @@ window.hideChatContainer = function() {
 // openExpandedChat - Opens chat in fullscreen modal
 window.openExpandedChat = function() {
   const modal = document.getElementById('expandedChatModal');
-  if (!modal) {
-    console.warn('Expanded chat modal not found');
-    return;
-  }
-  
+  if (!modal) return;
+
   const expandedFeed = document.getElementById('expandedChatFeed');
   const chatFeed = document.getElementById('chatFeed');
-  
   if (chatFeed && expandedFeed) {
     expandedFeed.innerHTML = chatFeed.innerHTML;
-    // Expand all messages in expanded view
-    expandedFeed.querySelectorAll('.msg-collapsed').forEach(el => {
-      el.className = 'msg-expanded';
-    });
-    // Remove expand buttons in expanded view
-    expandedFeed.querySelectorAll('[id^="expandBtn_"]').forEach(btn => {
-      btn.style.display = 'none';
-    });
+    expandedFeed.querySelectorAll('.msg-collapsed').forEach(el => { el.className = 'msg-expanded'; });
+    expandedFeed.querySelectorAll('[id^="expandBtn_"]').forEach(btn => { btn.style.display = 'none'; });
   }
-  
-  modal.style.display = 'flex';
+
+  modal.style.cssText = `
+    display: flex !important;
+    position: fixed !important;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(4px);
+    z-index: 10000;
+    justify-content: center;
+    align-items: center;
+    padding: 16px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  `;
+  const card = modal.querySelector('.modal-card');
+  if (card) {
+    card.style.cssText = `
+      width: 95vw !important;
+      height: 88vh !important;
+      max-width: 95vw !important;
+      max-height: 88vh !important;
+      border-radius: 24px !important;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.3) !important;
+      border: 1px solid var(--border) !important;
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 10px !important;
+      padding: 18px !important;
+      overflow: hidden !important;
+      background: var(--card-bg) !important;
+      animation: none !important;
+    `;
+  }
   setTimeout(() => modal.style.opacity = '1', 10);
 };
 
@@ -4705,12 +4803,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <!-- Expanded Chat Fullscreen Modal — direct body child to avoid stacking context issues -->
 <div id="expandedChatModal" class="modal-overlay" style="display:none; opacity:0; transition:opacity 0.3s ease;">
-  <div class="modal-card" style="max-width:95vw; width:95vw; height:90vh; max-height:90vh; display:flex; flex-direction:column;">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-shrink:0;">
-      <h2 style="margin:0;">💬 Community Chat (Expanded)</h2>
+  <div class="modal-card" style="width:100%; display:flex; flex-direction:column; padding:14px; gap:10px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-shrink:0;">
+      <h2 style="margin:0; font-size:1rem;">💬 Community Chat (Expanded)</h2>
       <button class="btn-small" onclick="closeExpandedChat()">✖ Close</button>
     </div>
-    <div id="expandedChatFeed" class="chat-feed" style="flex:1; overflow-y:auto; background:var(--bg); border-radius:16px; padding:15px;"></div>
+    <div id="expandedChatFeed" class="chat-feed" style="flex:1; overflow-y:auto; min-height:0;"></div>
   </div>
 </div>
 
